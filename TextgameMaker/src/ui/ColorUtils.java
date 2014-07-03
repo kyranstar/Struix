@@ -36,4 +36,7 @@ public final class ColorUtils {
 		hsb[2] = brightness;
 		return new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
 	}
+	public static Color mapOpacity(Color init, float opacity) {
+		return new Color(init.getRed(), init.getGreen(), init.getBlue(), (int)(opacity * 255));
+	}
 }

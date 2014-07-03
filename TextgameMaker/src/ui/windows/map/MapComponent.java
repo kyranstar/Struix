@@ -14,9 +14,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import ui.windows.WindowComponent;
+
+import com.google.common.base.Optional;
 
 public class MapComponent extends WindowComponent {
 
@@ -33,12 +34,22 @@ public class MapComponent extends WindowComponent {
 	
 	private double scale = 1.0;
 
-	private Optional<Point> pressedPoint = Optional.empty();
+	private Optional<Point> pressedPoint = Optional.absent();
 	private int currentX = 0;
 	private int currentY = 0;
 
 	private List<MapRoom> mapRooms = new LinkedList<MapRoom>();
 
+	public MapComponent() {
+		setPreferredSize(new Dimension(200, 200));
+		setSize(getPreferredSize());
+		this.setBackground(BACKGROUND_COLOR);
+		this.addMouseMotionListener(mousemMotionListener);
+		this.addMouseListener(mouseListener);
+		this.addMouseWheelListener(mouseWheelListener);
+	}
+
+	
 	private MouseWheelListener mouseWheelListener = new MouseWheelListener(){
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
@@ -51,6 +62,7 @@ public class MapComponent extends WindowComponent {
 					else
 						scale += 0.25;
 				
+					//hack that seems to make it zoom to center
 					currentX += getWidth()/scale/4;
 					currentY += getHeight()/scale/4;
 				}
@@ -61,6 +73,7 @@ public class MapComponent extends WindowComponent {
 					else
 						scale -= 0.25;
 				
+					//hack that seems to make it zoom to center
 					currentX -= getWidth()/scale/6;
 					currentY -= getHeight()/scale/6;
 				}
@@ -78,6 +91,10 @@ public class MapComponent extends WindowComponent {
 						// OPEN UP ROOM DIALOGUE
 						return;
 					}
+				}
+			}else if (e.getClickCount() == 1){
+				for (MapRoom room : mapRooms) {
+					room.unstickToMouse();
 				}
 			}
 		}
@@ -112,7 +129,7 @@ public class MapComponent extends WindowComponent {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			pressedPoint = Optional.empty();
+			pressedPoint = Optional.absent();
 			for (MapRoom c : mapRooms) {
 				c.mouseReleased(e);
 			}
@@ -129,8 +146,8 @@ public class MapComponent extends WindowComponent {
 				repaint();
 			}
 			if (pressedPoint.isPresent()) {
-				currentX = currentX + pressedPoint.get().x - e.getPoint().x;
-				currentY = currentY + pressedPoint.get().y - e.getPoint().y;
+				currentX = (int) (currentX + (pressedPoint.get().x - e.getPoint().x)/scale);
+				currentY = (int) (currentY + (pressedPoint.get().y - e.getPoint().y)/scale);
 
 				pressedPoint = Optional.of(e.getPoint());
 				repaint();
@@ -139,18 +156,17 @@ public class MapComponent extends WindowComponent {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
+			for(MapRoom room : mapRooms){
+				room.mouseMoved(e, currentX, currentY, scale);
+			}
+			repaint();
 		}
 	};
 
-	public MapComponent() {
-		setPreferredSize(new Dimension(200, 200));
-		setSize(getPreferredSize());
-		this.setBackground(BACKGROUND_COLOR);
-		this.addMouseMotionListener(mousemMotionListener);
-		this.addMouseListener(mouseListener);
-		this.addMouseWheelListener(mouseWheelListener);
+	public double getScale() {
+		return scale;
 	}
-
+	
 	@Override
 	public void paint(Graphics graphics) {
 		Graphics2D g = (Graphics2D) graphics;
@@ -174,6 +190,10 @@ public class MapComponent extends WindowComponent {
 		g.drawString("X: " + currentX + " Y: " + currentY, 10, 20);
 	}
 
+	public void addHallway(MapRoom first, MapRoom second){
+		MapHallway hallway = new MapHallway();
+	}
+	
 	public void addRoom(MapRoom c) {
 		this.mapRooms.add(c);
 		repaint();
@@ -186,4 +206,5 @@ public class MapComponent extends WindowComponent {
 		this.mapRooms.add(c);
 		repaint();
 	}
+
 }

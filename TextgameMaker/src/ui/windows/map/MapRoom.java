@@ -6,9 +6,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
-import java.util.Optional;
 
 import ui.ColorUtils;
+
+import com.google.common.base.Optional;
 
 public class MapRoom {
 
@@ -22,17 +23,50 @@ public class MapRoom {
 
 	private HallwaySet hallways = new HallwaySet();
 
-	public MapRoom(Color background, Point position) {
+	private boolean stuckToMouse = false;
+	
+	private MapComponent parent;
+	
+	public MapRoom(MapComponent parent, Color background, Point position) {
+		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
 		this.backgroundColor = background;
 	}
-	public MapRoom(Point position) {
+	public MapRoom(MapComponent parent, Point position) {
+		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
-		this.backgroundColor = ColorUtils.mapBrightness(ColorUtils.mapSaturation(ColorUtils.generateRandomColor(Color.RED), 0.5f), 0.9f);
+		this.backgroundColor = ColorUtils.mapOpacity(ColorUtils.mapBrightness(ColorUtils.mapSaturation(ColorUtils.generateRandomColor(new Color(255,50,50)), 0.7f), 0.9f),0.7f);
 	}
 
+	public void setX(int x){
+		this.bounds.x = x;
+	}
+	public void setY(int y){
+		this.bounds.y = y;
+	}
+
+	public void setLocation(int x, int y) {
+		this.bounds.x = x;
+		this.bounds.y = y;
+	}
+
+	public void setHeight(int height){
+		this.bounds.height = height;
+	}
+	public void setWidth(int width){
+		this.bounds.width = width;
+	}
+	
+	public void stickToMouse(){
+		stuckToMouse = true;
+	}
+	public void unstickToMouse(){
+		stuckToMouse = false;
+		snapToGrid();
+	}
+	
 	public HallwaySet getHallways() {
 		return hallways;
 	}
@@ -45,21 +79,18 @@ public class MapRoom {
 		return new Point(bounds.x, bounds.y);
 	}
 
-	public void setLocation(int x, int y) {
-		this.bounds.x = x;
-		this.bounds.y = y;
-	}
-
 	public void draw(Graphics g) {
 		g.setColor(backgroundColor);
 		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, CORNER_ROUNDNESS, CORNER_ROUNDNESS);
 
 		for (Optional<MapHallway> hallway : hallways) {
-			hallway.ifPresent(h -> h.draw(g));
+			if(hallway.isPresent()){
+				hallway.get().draw(g);
+			}
 		}
 	}
 
-	private Optional<Point> pressedPoint = Optional.empty();
+	private Optional<Point> pressedPoint = Optional.absent();
 
 	public void mousePressed(MouseEvent e) {
 		pressedPoint = Optional.of(e.getPoint());
@@ -67,22 +98,10 @@ public class MapRoom {
 
 	public void mouseReleased(MouseEvent e) {
 		if (pressedPoint.isPresent()) {
-			// Round to nearest grid box
-			if (bounds.x % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
-				this.bounds.x = bounds.x - (bounds.x % MapComponent.GRID_SIZE);
-			} else {
-				this.bounds.x = bounds.x - (bounds.x % MapComponent.GRID_SIZE)
-						+ MapComponent.GRID_SIZE;
-			}
-			if (bounds.y % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
-				this.bounds.y = bounds.y - (bounds.y % MapComponent.GRID_SIZE);
-			} else {
-				this.bounds.y = bounds.y - (bounds.y % MapComponent.GRID_SIZE)
-						+ MapComponent.GRID_SIZE;
-			}
+			snapToGrid();
 		}
 
-		pressedPoint = Optional.empty();
+		pressedPoint = Optional.absent();
 	}
 
 	// REPAINT after calling this method
@@ -90,12 +109,34 @@ public class MapRoom {
 		if (!pressedPoint.isPresent()) {
 			return;
 		}
-
-		this.bounds.x = bounds.x - pressedPoint.get().x + e.getPoint().x;
-		this.bounds.y = bounds.y - pressedPoint.get().y + e.getPoint().y;
+		System.out.println(pressedPoint.get().x);
+		setX( (int) Math.round(bounds.x - (pressedPoint.get().x - e.getPoint().x)/parent.getScale()));
+		setY( (int) Math.round(bounds.y - (pressedPoint.get().y - e.getPoint().y)/parent.getScale()));
 		pressedPoint = Optional.of(e.getPoint());
 	}
 
+	public void snapToGrid(){
+		if (bounds.x % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
+			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE));
+		} else {
+			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE)
+					+ MapComponent.GRID_SIZE);
+		}
+		if (bounds.y % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
+			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE));
+		} else {
+			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE)
+					+ MapComponent.GRID_SIZE);
+		}
+	}
+
+	public void mouseMoved(MouseEvent e, int currentX, int currentY, double scale) {
+		if(stuckToMouse){
+			setX((int) (currentX + e.getPoint().x/scale - this.bounds.width/2));
+			setY((int) (currentY + e.getPoint().y/scale - this.bounds.height/2));
+		}
+	}
+	
 	static class HallwaySet implements Iterable<Optional<MapHallway>> {
 		private static final int DIRECTIONS = 8;
 
@@ -113,7 +154,7 @@ public class MapRoom {
 
 		public HallwaySet() {
 			for (int i = 0; i < hallways.length; i++) {
-				hallways[i] = Optional.empty();
+				hallways[i] = Optional.absent();
 			}
 		}
 

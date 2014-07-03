@@ -37,9 +37,10 @@ public class CreatorUI extends JFrame{
 		ActionListener createRoomListener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MapRoom mapRoom = new MapRoom(new Point(0, 0));
-				//mapRoom.setSize(100, 100);
-				mapPanel.addAndCenterRoom(mapRoom);
+				MapRoom mapRoom = new MapRoom(mapPanel, new Point(0, 0));
+				mapRoom.stickToMouse();
+				mapPanel.addRoom(mapRoom);
+			
 			}};
 		ActionListener createHallwayListener = new ActionListener(){
 				@Override
