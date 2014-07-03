@@ -1,12 +1,17 @@
 package ui.windows.map;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +24,14 @@ public class MapComponent extends WindowComponent {
 
 	public static final int GRID_SIZE = 60;
 	private static final int SPACING_SIZE = 10;
+	
+	private static final double MAX_SCALE = 3.0;
+	private static final double MIN_SCALE = 0.25;
+	
+	private static final Color BACKGROUND_COLOR =new Color(133, 167, 190);
+	private static final Color HOLDER_COLOR = new Color(0,0,0,150);
+	
+	private double scale = 1.0;
 
 	private Optional<Point> pressedPoint = Optional.empty();
 	private int currentX = 0;
@@ -26,6 +39,36 @@ public class MapComponent extends WindowComponent {
 
 	private List<MapRoom> mapRooms = new LinkedList<MapRoom>();
 
+	private MouseWheelListener mouseWheelListener = new MouseWheelListener(){
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			//going inward
+			if(e.getWheelRotation() < 0){
+				if(scale < MAX_SCALE){
+				
+					if(scale <= 1)
+						scale *= 1.5;
+					else
+						scale += 0.25;
+				
+					currentX += getWidth()/scale/4;
+					currentY += getHeight()/scale/4;
+				}
+			}else{
+				if(scale > MIN_SCALE){
+					if(scale <= 1)
+						scale /= 1.5;
+					else
+						scale -= 0.25;
+				
+					currentX -= getWidth()/scale/6;
+					currentY -= getHeight()/scale/6;
+				}
+			}
+			repaint();
+		}
+	};
+	
 	private MouseListener mouseListener = new MouseListener() {
 		@Override
 		public void mouseClicked(MouseEvent e) {
@@ -49,10 +92,17 @@ public class MapComponent extends WindowComponent {
 		public void mousePressed(MouseEvent e) {
 			for (MapRoom c : mapRooms) {
 				Point mouse = e.getPoint();
-				mouse.translate(currentX, currentY);
+				mouse.translate((int)(currentX * scale ), (int) (currentY * scale));
 				
-				if (c.getBounds().contains(mouse)) {
+				Rectangle bounds = (Rectangle) c.getBounds().clone();
+				bounds.x *= scale;
+				bounds.y *= scale;
+				bounds.width *= scale;
+				bounds.height *= scale;
+				
+				if (bounds.contains(mouse)) {
 					c.mousePressed(e);
+					System.out.println("pressed");
 					return;
 				}
 			}
@@ -95,17 +145,21 @@ public class MapComponent extends WindowComponent {
 	public MapComponent() {
 		setPreferredSize(new Dimension(200, 200));
 		setSize(getPreferredSize());
-		this.setBackground(new Color(255, 200, 255, 100));
+		this.setBackground(BACKGROUND_COLOR);
 		this.addMouseMotionListener(mousemMotionListener);
 		this.addMouseListener(mouseListener);
+		this.addMouseWheelListener(mouseWheelListener);
 	}
 
 	@Override
-	public void paint(Graphics g) {
+	public void paint(Graphics graphics) {
+		Graphics2D g = (Graphics2D) graphics;
 		super.paint(g);		
-		g.setColor(new Color(50,50,50,150));
-		for (int x = -(currentX % GRID_SIZE ) - GRID_SIZE; x < getWidth(); x += GRID_SIZE) {
-			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight(); y += GRID_SIZE) {
+		g.scale(scale, scale);
+		g.setColor(HOLDER_COLOR);
+		g.setStroke(new BasicStroke(2));
+		for (int x = -(currentX % GRID_SIZE ) - GRID_SIZE; x < getWidth() / scale; x += GRID_SIZE) {
+			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight() / scale; y += GRID_SIZE) {
 				g.drawRoundRect(x, y, GRID_SIZE - SPACING_SIZE, GRID_SIZE - SPACING_SIZE, MapRoom.CORNER_ROUNDNESS, MapRoom.CORNER_ROUNDNESS);
 			}
 		}
@@ -114,9 +168,10 @@ public class MapComponent extends WindowComponent {
 			c.draw(g);
 		}
 		g.translate(currentX, currentY);
+		g.scale(1/scale, 1/scale);
+		
 		g.setColor(Color.GREEN);
 		g.drawString("X: " + currentX + " Y: " + currentY, 10, 20);
-		
 	}
 
 	public void addRoom(MapRoom c) {
@@ -124,8 +179,8 @@ public class MapComponent extends WindowComponent {
 		repaint();
 	}
 	public void addAndCenterRoom(MapRoom c){
-		int x = currentX + getWidth()/2 - c.getBounds().width/2;
-		int y = currentY + getHeight()/2 - c.getBounds().height/2;
+		int x = (int) (currentX + (getWidth()/scale)/2 - c.getBounds().width/2);
+		int y = (int) (currentY + (getHeight()/scale)/2 - c.getBounds().height/2);
 		
 		c.setLocation(x - (x % GRID_SIZE), y - (y % GRID_SIZE));
 		this.mapRooms.add(c);

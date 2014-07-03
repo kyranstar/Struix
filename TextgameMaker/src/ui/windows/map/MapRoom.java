@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.Optional;
 
+import ui.ColorUtils;
+
 public class MapRoom {
 
 	private static final int DEFAULT_WIDTH = 50;
@@ -24,6 +26,11 @@ public class MapRoom {
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
 		this.backgroundColor = background;
+	}
+	public MapRoom(Point position) {
+		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
+				DEFAULT_HEIGHT);
+		this.backgroundColor = ColorUtils.mapBrightness(ColorUtils.mapSaturation(ColorUtils.generateRandomColor(Color.RED), 0.5f), 0.9f);
 	}
 
 	public HallwaySet getHallways() {
@@ -45,7 +52,7 @@ public class MapRoom {
 
 	public void draw(Graphics g) {
 		g.setColor(backgroundColor);
-		g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, CORNER_ROUNDNESS, CORNER_ROUNDNESS);
 
 		for (Optional<MapHallway> hallway : hallways) {
 			hallway.ifPresent(h -> h.draw(g));

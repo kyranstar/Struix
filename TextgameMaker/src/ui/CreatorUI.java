@@ -31,13 +31,13 @@ public class CreatorUI extends JFrame{
 	private MapComponent mapPanel;
 	
 	public CreatorUI(){
-
+		super("Struix");
 		componentMover.setAutoLayout(true);
 		
 		ActionListener createRoomListener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MapRoom mapRoom = new MapRoom(Color.RED, new Point(0, 0));
+				MapRoom mapRoom = new MapRoom(new Point(0, 0));
 				//mapRoom.setSize(100, 100);
 				mapPanel.addAndCenterRoom(mapRoom);
 			}};
