@@ -3,6 +3,7 @@ package ui.windows;
 import java.awt.Container;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 /*IMPORTANT! When replacing this with new code from net beans:
@@ -16,7 +17,9 @@ import javax.swing.JPanel;
 public class BackgroundUI {
 
 
-    public Container initComponents(ActionListener createRoomListener, 
+	public Container initComponents(
+    		ActionListener dragToolListener,
+    		ActionListener createRoomListener, 
     		ActionListener createHallwayListener, 
     		ActionListener createWorldListener, 
     		ActionListener createPortalListener, 
@@ -34,6 +37,7 @@ public class BackgroundUI {
         toolbarPanel = new javax.swing.JPanel();
         mapToolbarPanel = new javax.swing.JPanel();
         mapToolbarTitle = new javax.swing.JLabel();
+        dragToolButton = new javax.swing.JButton();
         createRoomButton = new javax.swing.JButton();
         createHallwayButton = new javax.swing.JButton();
         createWorldButton = new javax.swing.JButton();
@@ -72,17 +76,20 @@ public class BackgroundUI {
         );
         worldSelectorPanelLayout.setVerticalGroup(
             worldSelectorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 185, Short.MAX_VALUE)
+            .addGap(0, 155, Short.MAX_VALUE)
         );
 
+        dragToolButton.setText("Drag Tool"); 
+        dragToolButton.addActionListener(dragToolListener);
+        
         javax.swing.GroupLayout mapToolbarPanelLayout = new javax.swing.GroupLayout(mapToolbarPanel);
         mapToolbarPanel.setLayout(mapToolbarPanelLayout);
         mapToolbarPanelLayout.setHorizontalGroup(
             mapToolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mapToolbarPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(mapToolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(mapToolbarTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(dragToolButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(createRoomButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(createHallwayButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(createWorldButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -97,6 +104,8 @@ public class BackgroundUI {
             mapToolbarPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mapToolbarPanelLayout.createSequentialGroup()
                 .addComponent(mapToolbarTitle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dragToolButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(createRoomButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -231,7 +240,9 @@ public class BackgroundUI {
 
                                    
 
-    // Variables declaration - do not modify                     
+    // Variables declaration - do not modify    
+
+    private JButton dragToolButton;
     private javax.swing.JButton createEntityButton;
     private javax.swing.JButton createHallwayButton;
     private javax.swing.JButton createPortalButton;

@@ -3,7 +3,6 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -12,11 +11,12 @@ import java.awt.event.ComponentListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import ui.windows.BackgroundUI;
 import ui.windows.WindowComponent;
 import ui.windows.map.MapComponent;
-import ui.windows.map.MapRoom;
+import ui.windows.map.MapComponent.Tool;
 
 public class CreatorUI extends JFrame{
 	
@@ -34,18 +34,23 @@ public class CreatorUI extends JFrame{
 		super("Struix");
 		componentMover.setAutoLayout(true);
 		
+		ActionListener dragToolListener = new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mapPanel.setCurrentTool(Tool.DRAG_ROOM);
+			}
+		};
+		
 		ActionListener createRoomListener = new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MapRoom mapRoom = new MapRoom(mapPanel, new Point(0, 0));
-				mapRoom.stickToMouse();
-				mapPanel.addRoom(mapRoom);
-			
+				mapPanel.setCurrentTool(Tool.CREATE_ROOM);
+				mapPanel.createRoomAtPoint(0,0).stickToMouse();
 			}};
 		ActionListener createHallwayListener = new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					mapPanel.setCurrentTool(Tool.CREATE_HALLWAY);
 				}
 			};
 		ActionListener createWorldListener = new ActionListener(){
@@ -98,7 +103,8 @@ public class CreatorUI extends JFrame{
 		JPanel entityListPanel = new JPanel();
 		entityListPanel.setBackground(new Color(0,100,255,100));
 		
-		backgroundPane = new BackgroundUI().initComponents(createRoomListener, 
+		backgroundPane = new BackgroundUI().initComponents(dragToolListener,
+				createRoomListener, 
 				createHallwayListener, 
 				createWorldListener, 
 				createPortalListener,
@@ -159,10 +165,16 @@ public class CreatorUI extends JFrame{
 	public static void main(String[] args){
 		setPLAF("Nimbus");
 		
-		CreatorUI frame = new CreatorUI();
-		frame.pack();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
+		SwingUtilities.invokeLater(new Runnable(){
+			@Override
+			public void run() {
+				CreatorUI frame = new CreatorUI();
+				frame.pack();
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setVisible(true);
+			}
+		});
+
 	}
 	
 }

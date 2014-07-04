@@ -13,8 +13,8 @@ import com.google.common.base.Optional;
 
 public class MapRoom {
 
-	private static final int DEFAULT_WIDTH = 50;
-	private static final int DEFAULT_HEIGHT = 50;
+	public static final int DEFAULT_WIDTH = 50;
+	public static final int DEFAULT_HEIGHT = 50;
 
 	public static final int CORNER_ROUNDNESS = 10;
 
@@ -138,19 +138,26 @@ public class MapRoom {
 	}
 	
 	static class HallwaySet implements Iterable<Optional<MapHallway>> {
-		private static final int DIRECTIONS = 8;
 
-		public final static int NORTH = 0;
-		public final static int NORTH_EAST = 1;
-		public final static int EAST = 2;
-		public final static int SOUTH_EAST = 3;
-		public final static int SOUTH = 4;
-		public final static int SOUTH_WEST = 5;
-		public final static int WEST = 6;
-		public final static int NORTH_WEST = 7;
+		public enum Direction{
+			NORTH(0),
+			NORTH_EAST(1),
+			EAST(2),
+			SOUTH_EAST(3),
+			SOUTH(4),
+			SOUTH_WEST(5),
+			WEST(6),
+			NORTH_WEST(7);
+			
+			
+			int index;
+			private Direction(int num){
+				this.index = num;
+			}
+		}
 
 		@SuppressWarnings("unchecked")
-		private Optional<MapHallway>[] hallways = (Optional<MapHallway>[]) new Optional[DIRECTIONS];
+		private Optional<MapHallway>[] hallways = (Optional<MapHallway>[]) new Optional[Direction.values().length];
 
 		public HallwaySet() {
 			for (int i = 0; i < hallways.length; i++) {
@@ -158,12 +165,12 @@ public class MapRoom {
 			}
 		}
 
-		public void setHallway(int direction, Optional<MapHallway> hallway) {
-			this.hallways[direction] = hallway;
+		public void setHallway(Direction direction, Optional<MapHallway> hallway) {
+			this.hallways[direction.index] = hallway;
 		}
 
-		public Optional<MapHallway> getHallway(int direction) {
-			return this.hallways[direction];
+		public Optional<MapHallway> getHallway(Direction direction) {
+			return this.hallways[direction.index];
 		}
 
 		@Override
@@ -174,7 +181,7 @@ public class MapRoom {
 
 				@Override
 				public boolean hasNext() {
-					return currentIndex < DIRECTIONS;
+					return currentIndex < Direction.values().length;
 				}
 
 				@Override
