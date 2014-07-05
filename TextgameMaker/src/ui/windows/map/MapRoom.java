@@ -2,12 +2,14 @@ package ui.windows.map;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
 import ui.ColorUtils;
+import ui.windows.map.MapRoom.HallwaySet.Direction;
 
 import com.google.common.base.Optional;
 
@@ -17,13 +19,11 @@ public class MapRoom {
 	public static final int DEFAULT_HEIGHT = 50;
 
 	public static final int CORNER_ROUNDNESS = 10;
-
+	
 	private Rectangle bounds;
 	private Color backgroundColor;
 
 	private HallwaySet hallways = new HallwaySet();
-
-	private boolean stuckToMouse = false;
 	
 	private MapComponent parent;
 	
@@ -60,11 +60,23 @@ public class MapRoom {
 	}
 	
 	public void stickToMouse(){
-		stuckToMouse = true;
+		if(parent.getStuckToMouse().isPresent())
+			throw new AlreadyExistsException("Mouse already has a room stuck to it!");
+
+		parent.setStuckToMouse(Optional.of(this));
 	}
 	public void unstickToMouse(){
-		stuckToMouse = false;
+		if(!parent.getStuckToMouse().isPresent())
+			throw new AlreadyExistsException("Mouse doesnt have a room stuck to it!");
+		if(parent.getStuckToMouse().get() != this){
+			throw new AlreadyExistsException("Room stuck to mouse is not this");
+		}
+
+		parent.setStuckToMouse(Optional.absent());
 		snapToGrid();
+	}
+	public void deleteStuckPiece(){
+		
 	}
 	
 	public HallwaySet getHallways() {
@@ -89,7 +101,19 @@ public class MapRoom {
 			}
 		}
 	}
-
+	public void drawEmptyHallways(Graphics2D g) {
+		g.translate(this.getBounds().x, this.getBounds().y);
+		g.setColor(MapHallway.EMPTY_CIRCLE_COLOR);
+		int index = 0;
+		for (Optional<MapHallway> hallway : hallways) {
+			if(!hallway.isPresent()){
+				Direction dir = HallwaySet.Direction.valueOf(index);
+				g.drawOval(dir.x, dir.y, 10, 10);
+			}
+			index++;
+		}
+		g.translate(-this.getBounds().x, -this.getBounds().y);
+	}
 	private Optional<Point> pressedPoint = Optional.absent();
 
 	public void mousePressed(MouseEvent e) {
@@ -109,7 +133,6 @@ public class MapRoom {
 		if (!pressedPoint.isPresent()) {
 			return;
 		}
-		System.out.println(pressedPoint.get().x);
 		setX( (int) Math.round(bounds.x - (pressedPoint.get().x - e.getPoint().x)/parent.getScale()));
 		setY( (int) Math.round(bounds.y - (pressedPoint.get().y - e.getPoint().y)/parent.getScale()));
 		pressedPoint = Optional.of(e.getPoint());
@@ -129,30 +152,43 @@ public class MapRoom {
 					+ MapComponent.GRID_SIZE);
 		}
 	}
-
-	public void mouseMoved(MouseEvent e, int currentX, int currentY, double scale) {
-		if(stuckToMouse){
-			setX((int) (currentX + e.getPoint().x/scale - this.bounds.width/2));
-			setY((int) (currentY + e.getPoint().y/scale - this.bounds.height/2));
-		}
-	}
-	
 	static class HallwaySet implements Iterable<Optional<MapHallway>> {
 
+		private static final int X_LEFT = 0;
+		private static final int X_CENTER = MapRoom.DEFAULT_WIDTH/2-MapHallway.EMPTY_SIZE/2;
+		private static final int X_RIGHT = MapRoom.DEFAULT_WIDTH-MapHallway.EMPTY_SIZE;
+		
+		private static final int Y_TOP = 0;
+		private static final int Y_CENTER = MapRoom.DEFAULT_HEIGHT/2 - MapHallway.EMPTY_SIZE/2;
+		private static final int Y_BOTTOM = MapRoom.DEFAULT_HEIGHT - MapHallway.EMPTY_SIZE;
+		
 		public enum Direction{
-			NORTH(0),
-			NORTH_EAST(1),
-			EAST(2),
-			SOUTH_EAST(3),
-			SOUTH(4),
-			SOUTH_WEST(5),
-			WEST(6),
-			NORTH_WEST(7);
 			
+			NORTH(0, X_CENTER, Y_TOP),
+			NORTH_EAST(1, X_RIGHT, Y_TOP),
+			EAST(2, X_RIGHT, Y_CENTER),
+			SOUTH_EAST(3, X_RIGHT, Y_BOTTOM),
+			SOUTH(4, X_CENTER, Y_BOTTOM),
+			SOUTH_WEST(5, X_LEFT, Y_BOTTOM),
+			WEST(6, X_LEFT, Y_CENTER),
+			NORTH_WEST(7, X_LEFT, Y_TOP);
 			
-			int index;
-			private Direction(int num){
+			final int index;
+			final int x, y;
+			
+			public static Direction valueOf(int index){
+				for(Direction dir : values()){
+					if(dir.index == index){
+						return dir;
+					}
+				}
+				throw new IndexOutOfBoundsException("Index out of range 0-7, was " + index);
+			}
+			
+			private Direction(int num, int x, int y){
 				this.index = num;
+				this.x = x;
+				this.y = y;
 			}
 		}
 

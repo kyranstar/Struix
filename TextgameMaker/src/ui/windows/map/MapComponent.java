@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -15,6 +16,7 @@ import java.awt.event.MouseWheelListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import ui.ColorPaletteConstants;
 import ui.windows.WindowComponent;
 
 import com.google.common.base.Optional;
@@ -29,9 +31,6 @@ public class MapComponent extends WindowComponent {
 	private static final double MAX_SCALE = 3.0;
 	private static final double MIN_SCALE = 0.25;
 
-	private static final Color BACKGROUND_COLOR = new Color(133, 167, 190);
-	private static final Color HOLDER_COLOR = new Color(0, 0, 0, 150);
-
 	private double scale = 1.0;
 
 	private Optional<Point> pressedPoint = Optional.absent();
@@ -39,6 +38,8 @@ public class MapComponent extends WindowComponent {
 	private int currentY = 0;
 
 	private List<MapRoom> mapRooms = new LinkedList<MapRoom>();
+	
+	private Optional<MapRoom> stuckToMouse = Optional.absent();
 
 	private Tool currentTool = Tool.DRAG_ROOM;
 
@@ -49,11 +50,12 @@ public class MapComponent extends WindowComponent {
 	public MapComponent() {
 		setPreferredSize(new Dimension(200, 200));
 		setSize(getPreferredSize());
-		this.setBackground(BACKGROUND_COLOR);
+		this.setBackground(ColorPaletteConstants.MAP_BACKGROUND);
 		this.addMouseMotionListener(mousemMotionListener);
 		this.addMouseListener(mouseListener);
 		this.addMouseWheelListener(mouseWheelListener);
 	}
+
 
 	private MouseWheelListener mouseWheelListener = new MouseWheelListener() {
 		@Override
@@ -99,9 +101,7 @@ public class MapComponent extends WindowComponent {
 						}
 					}
 				} else if (e.getClickCount() == 1) {
-					for (MapRoom room : mapRooms) {
-						room.unstickToMouse();
-					}
+					setStuckToMouse(Optional.absent());
 				}
 			} 
 		}
@@ -134,14 +134,16 @@ public class MapComponent extends WindowComponent {
 
 				pressedPoint = Optional.of(e.getPoint());
 			}else if (currentTool == Tool.CREATE_ROOM) {
-				for (MapRoom room : mapRooms) {
-					room.unstickToMouse();
+				if(getStuckToMouse().isPresent()){
+					getStuckToMouse().get().snapToGrid();
 				}
+				
+				setStuckToMouse(Optional.absent());
 
 				Point mouse = e.getPoint();
 				mouse.translate(
-						(int) ((currentX / scale - MapRoom.DEFAULT_WIDTH / 2)),
-						(int) ((currentY / scale - MapRoom.DEFAULT_HEIGHT / 2)));
+						(int) (currentX / scale - MapRoom.DEFAULT_WIDTH / 2),
+						(int) (currentY / scale - MapRoom.DEFAULT_HEIGHT / 2));
 				createRoomAtPoint(mouse.x, mouse.y).stickToMouse();
 			}
 		}
@@ -181,10 +183,13 @@ public class MapComponent extends WindowComponent {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			for (MapRoom room : mapRooms) {
-				room.mouseMoved(e, currentX, currentY, scale);
+			if(getStuckToMouse().isPresent()){
+				MapRoom room = getStuckToMouse().get();
+				
+				room.setX((int) (getCurrentX() + e.getPoint().x/getScale() - room.getBounds().width/2));
+				room.setY((int) (getCurrentY() + e.getPoint().y/getScale() - room.getBounds().height/2));
+				repaint();
 			}
-			repaint();
 		}
 	};
 	
@@ -192,6 +197,9 @@ public class MapComponent extends WindowComponent {
 		this.currentTool = currentTool;
 	}
 
+	public Tool getCurrentTool() {
+		return currentTool;
+	}
 	public MapRoom createRoomAtPoint(int x, int y) {
 		MapRoom mapRoom = new MapRoom(this, new Point(x, y));
 		addRoom(mapRoom);
@@ -207,8 +215,17 @@ public class MapComponent extends WindowComponent {
 	public void paint(Graphics graphics) {
 		Graphics2D g = (Graphics2D) graphics;
 		super.paint(g);
+		
+		g.addRenderingHints( new RenderingHints( RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON ));
+		g.setRenderingHint( RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON );
+		g.setRenderingHint( RenderingHints.KEY_RENDERING,
+                RenderingHints.VALUE_RENDER_QUALITY );
+		
+		
 		g.scale(scale, scale);
-		g.setColor(HOLDER_COLOR);
+		g.setColor(ColorPaletteConstants.MAP_ROOM_HOLDER);
 		g.setStroke(new BasicStroke(2));
 		for (int x = -(currentX % GRID_SIZE) - GRID_SIZE; x < getWidth()
 				/ scale; x += GRID_SIZE) {
@@ -222,6 +239,9 @@ public class MapComponent extends WindowComponent {
 		g.translate(-currentX, -currentY);
 		for (MapRoom c : mapRooms) {
 			c.draw(g);
+			if(currentTool == Tool.CREATE_HALLWAY){
+				c.drawEmptyHallways(g);
+			}
 		}
 		g.translate(currentX, currentY);
 		g.scale(1 / scale, 1 / scale);
@@ -230,9 +250,21 @@ public class MapComponent extends WindowComponent {
 		g.drawString("X: " + currentX + " Y: " + currentY, 10, 20);
 	}
 
-	public void addHallway(MapRoom first,
-			MapRoom.HallwaySet.Direction firstDirection, MapRoom second,
-			MapRoom.HallwaySet.Direction secondDirection) {
+	public int getCurrentX() {
+		return currentX;
+	}
+
+	public int getCurrentY() {
+		return currentY;
+	}
+
+	public Optional<MapRoom> getStuckToMouse() {
+		return stuckToMouse;
+	}
+	public void addHallway(
+			MapRoom first, MapRoom.HallwaySet.Direction firstDirection, 
+			MapRoom second,	MapRoom.HallwaySet.Direction secondDirection) {
+		
 		MapHallway hallway = new MapHallway();
 		first.getHallways().setHallway(firstDirection, Optional.of(hallway));
 		second.getHallways().setHallway(secondDirection, Optional.of(hallway));
@@ -247,9 +279,23 @@ public class MapComponent extends WindowComponent {
 		int x = (int) (currentX + (getWidth() / scale) / 2 - c.getBounds().width / 2);
 		int y = (int) (currentY + (getHeight() / scale) / 2 - c.getBounds().height / 2);
 
-		c.setLocation(x - (x % GRID_SIZE), y - (y % GRID_SIZE));
+		c.setLocation(x - x % GRID_SIZE, y - y % GRID_SIZE);
 		this.mapRooms.add(c);
 		repaint();
 	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setStuckToMouse(Optional optional) {
+		this.stuckToMouse = optional;
+	}
+
+	public void deleteStuckToMouse() {
+		if(stuckToMouse.isPresent()){
+			mapRooms.remove(stuckToMouse.get());		
+			stuckToMouse = Optional.absent();
+			repaint();
+		}
+	}
+
 
 }
