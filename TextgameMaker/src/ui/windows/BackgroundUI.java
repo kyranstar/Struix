@@ -54,18 +54,18 @@ public class BackgroundUI {
         mapToolbarPanel.setBackground(ColorPaletteConstants.TOOLBAR_BACKGROUND);
         
         mapToolbarTitle = new javax.swing.JLabel();
-        dragToolButton = new javax.swing.JButton();
-        createRoomButton = new javax.swing.JButton();
-        createHallwayButton = new javax.swing.JButton();
-        createWorldButton = new javax.swing.JButton();
-        createPortalButton = new javax.swing.JButton();
-        deleteWorldButton = new javax.swing.JButton();
+        dragToolButton = new UIButton("Drag Tool", true);
+        createRoomButton = new UIButton("Create Room",true);
+        createHallwayButton = new UIButton("Create Hallway", true);
+        createWorldButton = new UIButton("Create World", true);
+        createPortalButton = new UIButton("Create Portal", true);
+        deleteWorldButton = new UIButton("Delete World", false);
         entityListToolbarPanel = new javax.swing.JPanel();
         entityListToolbarPanel.setBackground(ColorPaletteConstants.TOOLBAR_BACKGROUND);
         
         entityTitle = new javax.swing.JLabel();
-        createEntityButton = new javax.swing.JButton();
-        deleteEntityButton = new javax.swing.JButton();
+        createEntityButton = new UIButton("Create Entity", true);
+        deleteEntityButton = new UIButton("Delete Entity", false);
         mainPanel = new javax.swing.JPanel();
         toolbarSplitPane = new javax.swing.JSplitPane();
         toolbarSplitPane.setBackground(ColorPaletteConstants.TOOLBAR_BACKGROUND);
@@ -91,40 +91,17 @@ public class BackgroundUI {
         mapToolbarTitle.setBorder(new RoundedCornerBorder());
        // mapToolbarTitle.setOpaque(true);
 
-        createRoomButton.setText("Create Room");
-        createRoomButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        createRoomButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        createRoomButton.setFocusPainted(false);
+
         createRoomButton.addActionListener(createRoomListener);
 
-        createHallwayButton.setText("Create Hallway");
-        createHallwayButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        createHallwayButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        createHallwayButton.setFocusPainted(false);
         createHallwayButton.addActionListener(createHallwayListener);
-        
-        createWorldButton.setText("Create World");
-        createWorldButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        createWorldButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        createWorldButton.setFocusPainted(false);
+
         createWorldButton.addActionListener(createWorldListener);
 
-        createPortalButton.setText("Create Portal");
-        createPortalButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        createPortalButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        createPortalButton.setFocusPainted(false);
         createPortalButton.addActionListener(createPortalListener);
 
-        deleteWorldButton.setText("Delete World");
-        deleteWorldButton.setBackground(ColorPaletteConstants.BUTTON_NEGATIVE);
-        deleteWorldButton.setForeground(ColorPaletteConstants.BUTTON_NEGATIVE_TEXT);
-        deleteWorldButton.setFocusPainted(false);
         deleteWorldButton.addActionListener(deleteWorldListener);
-        
-        dragToolButton.setText("Drag Tool"); 
-        dragToolButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        dragToolButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        dragToolButton.setFocusPainted(false);
+
         dragToolButton.addActionListener(dragToolListener);
 
         javax.swing.GroupLayout worldSelectorPanelLayout = new javax.swing.GroupLayout(worldSelectorPanel);
@@ -181,16 +158,10 @@ public class BackgroundUI {
         entityTitle.setOpaque(true);
         entityTitle.setBorder(new RoundedCornerBorder());
 
-        createEntityButton.setText("Create Entity");
-        createEntityButton.setBackground(ColorPaletteConstants.BUTTON_POSITIVE);
-        createEntityButton.setForeground(ColorPaletteConstants.BUTTON_POSITIVE_TEXT);
-        createEntityButton.setFocusPainted(false);
+
         createEntityButton.addActionListener(createEntityListener);
 
-        deleteEntityButton.setText("Delete Entity");
-        deleteEntityButton.setBackground(ColorPaletteConstants.BUTTON_NEGATIVE);
-        deleteEntityButton.setForeground(ColorPaletteConstants.BUTTON_NEGATIVE_TEXT);
-        deleteEntityButton.setFocusPainted(false);
+
         deleteEntityButton.addActionListener(deleteEntityListener);
 
         javax.swing.GroupLayout entityListToolbarPanelLayout = new javax.swing.GroupLayout(entityListToolbarPanel);
@@ -304,14 +275,14 @@ public class BackgroundUI {
 
     // Variables declaration - do not modify    
 
-    private JButton dragToolButton;
-    private javax.swing.JButton createEntityButton;
-    private javax.swing.JButton createHallwayButton;
-    private javax.swing.JButton createPortalButton;
-    private javax.swing.JButton createRoomButton;
-    private javax.swing.JButton createWorldButton;
-    private javax.swing.JButton deleteEntityButton;
-    private javax.swing.JButton deleteWorldButton;
+    private UIButton dragToolButton;
+    private UIButton createEntityButton;
+    private UIButton createHallwayButton;
+    private UIButton createPortalButton;
+    private UIButton createRoomButton;
+    private UIButton  createWorldButton;
+    private UIButton deleteEntityButton;
+    private UIButton deleteWorldButton;
     private javax.swing.JPanel entityListToolbarPanel;
     private javax.swing.JLabel entityTitle;
     private javax.swing.JPanel mainBackgroundPanel;

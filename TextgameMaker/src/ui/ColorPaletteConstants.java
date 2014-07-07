@@ -15,4 +15,10 @@ public class ColorPaletteConstants {
 	
 	public static final Color LABEL_BACKGROUND = new Color(87,125, 146);
 	public static final Color LABEL_TEXT = Color.WHITE;
+	
+	public static final boolean ROOM_RANDOM_COLOR = true;
+	public static final Color ROOM_DEFAULT_COLOR = Color.GRAY;
+	public static final float ROOM_DEFAULT_COLOR_OPACITY = 0.7f;
+	public static final float ROOM_DEFAULT_COLOR_SATURATION = 0.7f;
+	public static final float ROOM_DEFAULT_COLOR_BRIGHTNESS = 0.7f;
 }

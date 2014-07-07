@@ -15,9 +15,9 @@ import javax.swing.SwingUtilities;
 
 import ui.windows.BackgroundUI;
 import ui.windows.WindowComponent;
-import ui.windows.map.MapComponent;
 import ui.windows.map.MapRoom;
-import ui.windows.map.MapComponent.Tool;
+import ui.windows.map.main.MapComponent;
+import ui.windows.map.main.MapComponent.Tool;
 
 public class CreatorUI extends JFrame {
 
@@ -50,12 +50,12 @@ public class CreatorUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (mapPanel.getCurrentTool() != Tool.CREATE_ROOM) {
 					mapPanel.setCurrentTool(Tool.CREATE_ROOM);
-					// 10 extra just to be safe
+					// 1000 extra just to be safe
 					mapPanel.createRoomAtPoint(
-							mapPanel.getCurrentX() - MapRoom.DEFAULT_WIDTH
-									- +10,
-							mapPanel.getCurrentY() - MapRoom.DEFAULT_HEIGHT
-									- 10).stickToMouse();
+							(int) (mapPanel.getCurrentX()*mapPanel.getScale() - MapRoom.DEFAULT_WIDTH
+									- 1000),
+							(int) (mapPanel.getCurrentY()*mapPanel.getScale() - MapRoom.DEFAULT_HEIGHT
+									- 1000)).stickToMouse();
 				}
 			}
 		};

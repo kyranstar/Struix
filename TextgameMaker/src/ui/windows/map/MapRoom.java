@@ -8,8 +8,10 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
+import ui.ColorPaletteConstants;
 import ui.ColorUtils;
 import ui.windows.map.MapRoom.HallwaySet.Direction;
+import ui.windows.map.main.MapComponent;
 
 import com.google.common.base.Optional;
 
@@ -37,7 +39,19 @@ public class MapRoom {
 		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
-		this.backgroundColor = ColorUtils.mapOpacity(ColorUtils.mapBrightness(ColorUtils.mapSaturation(ColorUtils.generateRandomColor(new Color(255,50,50)), 0.7f), 0.9f),0.7f);
+		if(ColorPaletteConstants.ROOM_RANDOM_COLOR){
+			this.backgroundColor = 
+				ColorUtils.mapOpacity(
+					ColorUtils.mapBrightness(
+						ColorUtils.mapSaturation(
+								ColorUtils.generateRandomColor(
+									ColorPaletteConstants.ROOM_DEFAULT_COLOR),
+						ColorPaletteConstants.ROOM_DEFAULT_COLOR_SATURATION),
+					ColorPaletteConstants.ROOM_DEFAULT_COLOR_BRIGHTNESS),
+				ColorPaletteConstants.ROOM_DEFAULT_COLOR_OPACITY);
+		}else{
+			this.backgroundColor = ColorPaletteConstants.ROOM_DEFAULT_COLOR;
+		}
 	}
 
 	public void setX(int x){
@@ -152,7 +166,7 @@ public class MapRoom {
 					+ MapComponent.GRID_SIZE);
 		}
 	}
-	static class HallwaySet implements Iterable<Optional<MapHallway>> {
+	public static class HallwaySet implements Iterable<Optional<MapHallway>> {
 
 		private static final int X_LEFT = 0;
 		private static final int X_CENTER = MapRoom.DEFAULT_WIDTH/2-MapHallway.EMPTY_SIZE/2;
