@@ -7,14 +7,10 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,6 +130,10 @@ public class MapComponent extends WindowComponent {
 				c.drawEmptyHallways(g);
 			}
 		}
+		if(this.mouseListener.hallwayToMouse.isPresent()){
+			g.setColor(Color.BLACK);
+			g.draw(mouseListener.hallwayToMouse.get());
+		}
 		g.translate(currentX, currentY);
 		g.scale(1 / scale, 1 / scale);
 
@@ -171,7 +171,7 @@ public class MapComponent extends WindowComponent {
 			MapRoom.HallwaySet.Direction firstDirection, MapRoom second,
 			MapRoom.HallwaySet.Direction secondDirection) {
 
-		MapHallway hallway = new MapHallway();
+		MapHallway hallway = new MapHallway(first, firstDirection, second, secondDirection);
 		first.getHallways().setHallway(firstDirection, Optional.of(hallway));
 		second.getHallways().setHallway(secondDirection, Optional.of(hallway));
 	}
