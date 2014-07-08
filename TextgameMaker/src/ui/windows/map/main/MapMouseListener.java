@@ -15,16 +15,16 @@ import ui.windows.map.main.MapComponent.Tool;
 
 import com.google.common.base.Optional;
 
-public class MapMouseListener implements MouseListener, MouseMotionListener {
+class MapMouseListener implements MouseListener, MouseMotionListener {
 
 	private MapComponent parent;
 	private Optional<Point> pressedPoint = Optional.absent();
 
 	private Optional<MapRoom> pressedRoom = Optional.absent();
 	private Optional<Integer> pressedHallwayIndex = Optional.absent();
-	public Optional<Line2D.Double> hallwayToMouse = Optional.absent();
+	Optional<Line2D.Double> hallwayToMouse = Optional.absent();
 
-	public MapMouseListener(MapComponent parent) {
+	MapMouseListener(MapComponent parent) {
 		this.parent = parent;
 	}
 
@@ -52,98 +52,124 @@ public class MapMouseListener implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (parent.getCurrentTool() == Tool.DRAG_ROOM) {
-			for (MapRoom c : parent.getMapRooms()) {
-				Point mouse = e.getPoint();
-				mouse.translate(
-						(int) (parent.getCurrentX() * parent.getScale()),
-						(int) (parent.getCurrentY() * parent.getScale()));
+		switch (parent.getCurrentTool()) {
+		case DRAG_ROOM:
+			handleMousePressDragRoom(e);
+			break;
+		case CREATE_ROOM:
+			handleMousePressCreateRoom(e);
+			break;
+		case CREATE_HALLWAY:
+			handleMousePressCreateHallway(e);
+			break;
+		default:
+			throw new UnhandledToolException(parent.getCurrentTool()
+					+ " unhandled for mouse press");
+		}
+	}
 
-				Rectangle bounds = (Rectangle) c.getBounds().clone();
-				bounds.x *= parent.getScale();
-				bounds.y *= parent.getScale();
-				bounds.width *= parent.getScale();
-				bounds.height *= parent.getScale();
-
-				if (bounds.contains(mouse)) {
-					c.mousePressed(e);
-					return;
-				}
-			}
-
-			pressedPoint = Optional.of(e.getPoint());
-		} else if (parent.getCurrentTool() == Tool.CREATE_ROOM) {
-			if (parent.getStuckToMouse().isPresent()) {
-				MapRoom room = parent.getStuckToMouse().get();
-				room.snapToGrid();
-				if (parent.twoRoomsInPosition(room.getLocation())) {
-					return;
-				}
-			}
-			// unstick to mouse
-			parent.setStuckToMouse(Optional.absent());
-
+	private void handleMousePressDragRoom(MouseEvent e) {
+		for (MapRoom c : parent.getMapRooms()) {
 			Point mouse = e.getPoint();
-			mouse.translate(
-					(int) (parent.getCurrentX() / parent.getScale() - MapRoom.DEFAULT_WIDTH / 2),
-					(int) (parent.getCurrentY() / parent.getScale() - MapRoom.DEFAULT_HEIGHT / 2));
-			parent.createRoomAtPoint(mouse.x, mouse.y).stickToMouse();
-		} else if (parent.getCurrentTool() == Tool.CREATE_HALLWAY) {
-			for (MapRoom c : parent.getMapRooms()) {
-				Point mouse = e.getPoint();
-				mouse.translate(
-						(int) (parent.getCurrentX() * parent.getScale()),
-						(int) (parent.getCurrentY() * parent.getScale()));
+			mouse.translate((int) (parent.getCurrentX() * parent.getScale()),
+					(int) (parent.getCurrentY() * parent.getScale()));
 
-				Rectangle roomBounds = (Rectangle) c.getBounds().clone();
-				roomBounds.x *= parent.getScale();
-				roomBounds.y *= parent.getScale();
-				roomBounds.width *= parent.getScale();
-				roomBounds.height *= parent.getScale();
-				if (roomBounds.contains(mouse)) {
+			Rectangle bounds = (Rectangle) c.getBounds().clone();
+			bounds.x *= parent.getScale();
+			bounds.y *= parent.getScale();
+			bounds.width *= parent.getScale();
+			bounds.height *= parent.getScale();
 
-					int index = 0;
-					for (Optional<MapHallway> hallway : c.getHallways()) {
-						if (!hallway.isPresent()) {
-							Direction dir = HallwaySet.Direction.valueOf(index);
-							Rectangle circleBounds = new Rectangle(dir.x,
-									dir.y, MapRoom.EMPTY_HALLWAY_SIZE,
-									MapRoom.EMPTY_HALLWAY_SIZE);
-							circleBounds.x += roomBounds.x;
-							circleBounds.y += roomBounds.y;
-							circleBounds.x *= parent.getScale();
-							circleBounds.y *= parent.getScale();
-							circleBounds.width *= parent.getScale();
-							circleBounds.height *= parent.getScale();
-							if (circleBounds.contains(mouse)) {
-								if (this.pressedRoom.isPresent()) {
-									Direction oneDir = Direction.valueOf(index);
-									Direction twoDir = Direction
-											.valueOf(pressedHallwayIndex.get());
+			if (bounds.contains(mouse)) {
+				c.mousePressed(e);
+				return;
+			}
+		}
 
-									MapHallway h = new MapHallway(c, oneDir,
-											pressedRoom.get(), twoDir);
+		pressedPoint = Optional.of(e.getPoint());
+	}
 
-									c.getHallways().setHallway(oneDir,
-											Optional.of(h));
-									pressedRoom.get().getHallways()
-											.setHallway(twoDir, Optional.of(h));
+	private void handleMousePressCreateRoom(MouseEvent e) {
+		if (parent.getStuckToMouse().isPresent()) {
+			MapRoom room = parent.getStuckToMouse().get();
+			room.snapToGrid();
+			if (twoRoomsInPosition(room.getLocation())) {
+				return;
+			}
+		}
+		// unstick to mouse
+		parent.setStuckToMouse(Optional.absent());
 
-									this.pressedRoom = Optional.absent();
-									pressedHallwayIndex = Optional.absent();
-									this.hallwayToMouse = Optional.absent();
-								} else {
-									pressedHallwayIndex = Optional.of(index);
-									this.pressedRoom = Optional.of(c);
-								}
+		Point mouse = e.getPoint();
+		mouse.translate(
+				(int) (parent.getCurrentX() / parent.getScale() - MapRoom.DEFAULT_WIDTH / 2),
+				(int) (parent.getCurrentY() / parent.getScale() - MapRoom.DEFAULT_HEIGHT / 2));
+		parent.createRoomAtPoint(mouse.x, mouse.y).stickToMouse();
+	}
+
+	private void handleMousePressCreateHallway(MouseEvent e) {
+		for (MapRoom c : parent.getMapRooms()) {
+			Point mouse = e.getPoint();
+			mouse.translate((int) (parent.getCurrentX() * parent.getScale()),
+					(int) (parent.getCurrentY() * parent.getScale()));
+
+			Rectangle roomBounds = (Rectangle) c.getBounds().clone();
+			roomBounds.x *= parent.getScale();
+			roomBounds.y *= parent.getScale();
+			roomBounds.width *= parent.getScale();
+			roomBounds.height *= parent.getScale();
+			if (roomBounds.contains(mouse)) {
+
+				int index = 0;
+				for (Optional<MapHallway> hallway : c.getHallways()) {
+					if (!hallway.isPresent()) {
+						Direction dir = HallwaySet.Direction.valueOf(index);
+						Rectangle circleBounds = new Rectangle(dir.x, dir.y,
+								MapRoom.EMPTY_HALLWAY_SIZE,
+								MapRoom.EMPTY_HALLWAY_SIZE);
+						circleBounds.x += roomBounds.x;
+						circleBounds.y += roomBounds.y;
+						circleBounds.x *= parent.getScale();
+						circleBounds.y *= parent.getScale();
+						circleBounds.width *= parent.getScale();
+						circleBounds.height *= parent.getScale();
+						if (circleBounds.contains(mouse)) {
+							if (this.pressedRoom.isPresent()) {
+								Direction oneDir = Direction.valueOf(index);
+								Direction twoDir = Direction
+										.valueOf(pressedHallwayIndex.get());
+
+								parent.addHallway(c, oneDir, pressedRoom.get(),
+										twoDir);
+
+								this.pressedRoom = Optional.absent();
+								pressedHallwayIndex = Optional.absent();
+								this.hallwayToMouse = Optional.absent();
+							} else {
+								pressedHallwayIndex = Optional.of(index);
+								this.pressedRoom = Optional.of(c);
 							}
-
 						}
-						index++;
+
 					}
+					index++;
 				}
 			}
 		}
+	}
+
+	private boolean twoRoomsInPosition(Point point) {
+		boolean foundOne = false;
+		for (MapRoom room : parent.getMapRooms()) {
+			if (room.getLocation().equals(point)) {
+				if (!foundOne) {
+					foundOne = true;
+				} else {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -188,10 +214,9 @@ public class MapMouseListener implements MouseListener, MouseMotionListener {
 			parent.repaint();
 		} else if (this.pressedHallwayIndex.isPresent()) {
 			Point mouse = e.getPoint();
-			mouse.translate(
-					(int) (parent.getCurrentX() * parent.getScale()),
+			mouse.translate((int) (parent.getCurrentX() * parent.getScale()),
 					(int) (parent.getCurrentY() * parent.getScale()));
-			
+
 			int x = pressedRoom.get().getBounds().x
 					+ Direction.valueOf(pressedHallwayIndex.get()).x
 					+ MapHallway.EMPTY_SIZE / 2;
@@ -199,7 +224,8 @@ public class MapMouseListener implements MouseListener, MouseMotionListener {
 					+ Direction.valueOf(pressedHallwayIndex.get()).y
 					+ MapHallway.EMPTY_SIZE / 2;
 
-			this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
+			this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x,
+					mouse.y));
 			parent.repaint();
 		}
 	}

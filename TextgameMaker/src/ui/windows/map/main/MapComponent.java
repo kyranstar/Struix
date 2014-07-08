@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelListener;
@@ -35,12 +34,15 @@ public class MapComponent extends WindowComponent {
 	private int currentX;
 	private int currentY;
 
-	private List<MapRoom> mapRooms = new LinkedList<MapRoom>();
+	private final List<MapRoom> mapRooms = new LinkedList<MapRoom>();
 
 	private Optional<MapRoom> stuckToMouse = Optional.absent();
 
 	private Tool currentTool = Tool.DRAG_ROOM;
 
+	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
+	private final MapMouseListener mouseListener = new MapMouseListener(this);
+	
 	public enum Tool {
 		DRAG_ROOM, CREATE_ROOM, CREATE_HALLWAY;
 	}
@@ -67,9 +69,6 @@ public class MapComponent extends WindowComponent {
 		this.add(button, BorderLayout.EAST);
 	}
 
-	private MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
-	private MapMouseListener mouseListener = new MapMouseListener(this);
-
 	public void setCurrentTool(Tool currentTool) {
 		this.currentTool = currentTool;
 	}
@@ -80,10 +79,6 @@ public class MapComponent extends WindowComponent {
 
 	public List<MapRoom> getMapRooms() {
 		return mapRooms;
-	}
-
-	public void setMapRooms(List<MapRoom> mapRooms) {
-		this.mapRooms = mapRooms;
 	}
 
 	public MapRoom createRoomAtPoint(int x, int y) {
@@ -176,32 +171,9 @@ public class MapComponent extends WindowComponent {
 		second.getHallways().setHallway(secondDirection, Optional.of(hallway));
 	}
 
-	public void addRoom(MapRoom room) {
+	private void addRoom(MapRoom room) {
 		this.getMapRooms().add(room);
 		repaint();
-	}
-
-	public void addAndCenterRoom(MapRoom c) {
-		int x = (int) (currentX + (getWidth() / scale) / 2 - c.getBounds().width / 2);
-		int y = (int) (currentY + (getHeight() / scale) / 2 - c.getBounds().height / 2);
-
-		c.setLocation(x - x % GRID_SIZE, y - y % GRID_SIZE);
-		this.getMapRooms().add(c);
-		repaint();
-	}
-
-	public boolean twoRoomsInPosition(Point point) {
-		boolean foundOne = false;
-		for (MapRoom room : getMapRooms()) {
-			if (room.getLocation().equals(point)) {
-				if (!foundOne) {
-					foundOne = true;
-				} else {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

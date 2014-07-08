@@ -9,7 +9,7 @@ import ui.ColorPaletteConstants;
 public class UIButton extends JButton{
 	private static final long serialVersionUID = 1L;
 
-	public static final Font BUTTON_FONT = new Font("Forte", Font.PLAIN, 13);
+	private static final Font BUTTON_FONT = new Font("Forte", Font.PLAIN, 13);
 	
 	public UIButton(String text, boolean positive){
 		super(text);

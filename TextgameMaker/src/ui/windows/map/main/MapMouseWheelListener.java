@@ -3,14 +3,14 @@ package ui.windows.map.main;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-public class MapMouseWheelListener implements MouseWheelListener{
+class MapMouseWheelListener implements MouseWheelListener{
 	private MapComponent parent;
 
 
 	private static final double MAX_SCALE = 3.0;
 	private static final double MIN_SCALE = 0.25;
 
-	public MapMouseWheelListener(MapComponent parent){
+	MapMouseWheelListener(MapComponent parent){
 		this.parent = parent;
 	}
 	
