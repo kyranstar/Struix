@@ -1,4 +1,4 @@
-package character;
+package logic.character;
 
 public class Character {
 

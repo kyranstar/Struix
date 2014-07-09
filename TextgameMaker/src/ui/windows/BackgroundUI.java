@@ -21,6 +21,7 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 import ui.ColorPaletteConstants;
+import ui.windows.map.main.MapComponent;
 /*IMPORTANT! When replacing this with new code from net beans:
  * make this extend nothing
  * make initComponents() return a Container
@@ -40,7 +41,7 @@ public class BackgroundUI {
     		ActionListener deleteWorldListener, 
     		ActionListener createEntityListener, 
     		ActionListener deleteEntityListener, 
-    		JPanel mapPanel, 
+    		final MapComponent mapPanel, 
     		JPanel worldSelectorPanel,
     		JPanel entityListPanel) {
 
@@ -204,17 +205,6 @@ public class BackgroundUI {
         );
 
         toolbarSplitPane.setLeftComponent(toolbarPanel);
-
-        javax.swing.GroupLayout mapPanelLayout = new javax.swing.GroupLayout(mapPanel);
-        mapPanel.setLayout(mapPanelLayout);
-        mapPanelLayout.setHorizontalGroup(
-            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 382, Short.MAX_VALUE)
-        );
-        mapPanelLayout.setVerticalGroup(
-            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 361, Short.MAX_VALUE)
-        );
 
         javax.swing.GroupLayout entityListPanelLayout = new javax.swing.GroupLayout(entityListPanel);
         entityListPanel.setLayout(entityListPanelLayout);

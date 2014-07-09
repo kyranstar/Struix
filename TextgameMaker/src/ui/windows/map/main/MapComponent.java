@@ -14,6 +14,8 @@ import java.awt.event.MouseWheelListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JPanel;
+
 import ui.ColorPaletteConstants;
 import ui.windows.UIButton;
 import ui.windows.WindowComponent;
@@ -66,7 +68,11 @@ public class MapComponent extends WindowComponent {
 				repaint();
 			}
 		});
-		this.add(button, BorderLayout.EAST);
+		JPanel buttonHolder = new JPanel();
+		buttonHolder.add(button);
+		buttonHolder.setOpaque(false);
+		
+		this.add(buttonHolder, BorderLayout.EAST);
 	}
 
 	public void setCurrentTool(Tool currentTool) {

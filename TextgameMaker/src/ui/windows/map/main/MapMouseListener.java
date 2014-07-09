@@ -148,6 +148,17 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 							} else {
 								pressedHallwayIndex = Optional.of(index);
 								this.pressedRoom = Optional.of(c);
+								
+								int x = pressedRoom.get().getBounds().x
+										+ Direction.valueOf(pressedHallwayIndex.get()).x
+										+ MapHallway.EMPTY_SIZE / 2;
+								int y = pressedRoom.get().getBounds().y
+										+ Direction.valueOf(pressedHallwayIndex.get()).y
+										+ MapHallway.EMPTY_SIZE / 2;
+
+								this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x,
+										mouse.y));
+								parent.repaint();
 							}
 						}
 

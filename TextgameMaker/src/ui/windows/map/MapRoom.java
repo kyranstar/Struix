@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 
+import logic.creator.Room;
 import ui.ColorPaletteConstants;
 import ui.ColorUtils;
 import ui.windows.map.MapRoom.HallwaySet.Direction;
@@ -31,7 +32,11 @@ public class MapRoom {
 
 	private MapComponent parent;
 
+	private Room room;
+	
 	public MapRoom(MapComponent parent, Color background, Point position) {
+		room = new Room();
+		
 		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
@@ -39,6 +44,8 @@ public class MapRoom {
 	}
 
 	public MapRoom(MapComponent parent, Point position) {
+		room = new Room();
+		
 		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);

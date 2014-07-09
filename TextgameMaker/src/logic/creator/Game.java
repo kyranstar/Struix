@@ -1,4 +1,4 @@
-package creator;
+package logic.creator;
 
 public class Game {
 
