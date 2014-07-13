@@ -16,15 +16,18 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import logic.creator.Room;
+import logic.creator.Room.RoomHandler;
+import logic.words.WordSet;
 import ui.ColorPaletteConstants;
+import ui.CreatorUI;
 import ui.windows.UIButton;
-import ui.windows.WindowComponent;
 import ui.windows.map.MapHallway;
 import ui.windows.map.MapRoom;
 
 import com.google.common.base.Optional;
 
-public class MapComponent extends WindowComponent {
+public class MapComponent extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,12 +48,18 @@ public class MapComponent extends WindowComponent {
 	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
 	private final MapMouseListener mouseListener = new MapMouseListener(this);
 	
+	private WordSet wordSet = new WordSet();
+	private RoomHandler roomBuilder = new RoomHandler(wordSet);
+
+	private CreatorUI creatorUI;
+	
 	public enum Tool {
 		DRAG_ROOM, CREATE_ROOM, CREATE_HALLWAY;
 	}
 
-	public MapComponent() {
+	public MapComponent(CreatorUI creatorUI) {
 		super();
+		this.setCreatorUI(creatorUI);
 		setPreferredSize(new Dimension(200, 200));
 		setSize(getPreferredSize());
 		this.setBackground(ColorPaletteConstants.MAP_BACKGROUND);
@@ -169,12 +178,12 @@ public class MapComponent extends WindowComponent {
 	}
 
 	public void addHallway(MapRoom first,
-			MapRoom.HallwaySet.Direction firstDirection, MapRoom second,
-			MapRoom.HallwaySet.Direction secondDirection) {
+			Room.HallwaySet.Direction firstDirection, MapRoom second,
+			Room.HallwaySet.Direction secondDirection) {
 
 		MapHallway hallway = new MapHallway(first, firstDirection, second, secondDirection);
-		first.getHallways().setHallway(firstDirection, Optional.of(hallway));
-		second.getHallways().setHallway(secondDirection, Optional.of(hallway));
+		first.getRoom().getHallways().setHallway(firstDirection, Optional.of(hallway));
+		second.getRoom().getHallways().setHallway(secondDirection, Optional.of(hallway));
 	}
 
 	private void addRoom(MapRoom room) {
@@ -193,5 +202,17 @@ public class MapComponent extends WindowComponent {
 			stuckToMouse = Optional.absent();
 			repaint();
 		}
+	}
+
+	public RoomHandler getRoomBuilder() {
+		return roomBuilder;
+	}
+
+	public CreatorUI getCreatorUI() {
+		return creatorUI;
+	}
+
+	public void setCreatorUI(CreatorUI creatorUI) {
+		this.creatorUI = creatorUI;
 	}
 }

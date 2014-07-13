@@ -3,7 +3,7 @@ package ui.windows.map;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import ui.windows.map.MapRoom.HallwaySet.Direction;
+import logic.creator.Room.HallwaySet.Direction;
 
 public class MapHallway {
 

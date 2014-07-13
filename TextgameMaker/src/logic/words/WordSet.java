@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WordSet {
-	private Map<String, Word> synonyms = new HashMap<String, Word>();
+	private Map<String, Word> synonyms = new HashMap<>();
 	
 	public void addWord(Word word){
 		synonyms.put(word.value, word);

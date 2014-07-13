@@ -1,17 +1,22 @@
 package ui.windows.map;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.Point;
+import java.awt.RadialGradientPaint;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.Iterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import logic.creator.Room;
+import logic.creator.Room.HallwaySet;
+import logic.creator.Room.HallwaySet.Direction;
 import ui.ColorPaletteConstants;
 import ui.ColorUtils;
-import ui.windows.map.MapRoom.HallwaySet.Direction;
 import ui.windows.map.main.MapComponent;
 
 import com.google.common.base.Optional;
@@ -26,44 +31,40 @@ public class MapRoom {
 	public static final int EMPTY_HALLWAY_SIZE = 10;
 
 	private Rectangle bounds;
-	private Color backgroundColor;
-
-	private HallwaySet hallways = new HallwaySet();
 
 	private MapComponent parent;
 
 	private Room room;
-	
+
+	private boolean selected = false;
+
 	public MapRoom(MapComponent parent, Color background, Point position) {
-		room = new Room();
-		
+		room = parent.getRoomBuilder().createRoom("", background);
+
 		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
-		this.backgroundColor = background;
 	}
 
 	public MapRoom(MapComponent parent, Point position) {
-		room = new Room();
-		
 		this.parent = parent;
 		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
 				DEFAULT_HEIGHT);
+		Color color;
+
 		if (ColorPaletteConstants.ROOM_RANDOM_COLOR) {
-			this.backgroundColor = ColorUtils
-					.mapOpacity(
+			color = ColorUtils
+					.mapBrightness(
 							ColorUtils
-									.mapBrightness(
+									.mapSaturation(
 											ColorUtils
-													.mapSaturation(
-															ColorUtils
-																	.generateRandomColor(ColorPaletteConstants.ROOM_DEFAULT_COLOR),
-															ColorPaletteConstants.ROOM_DEFAULT_COLOR_SATURATION),
-											ColorPaletteConstants.ROOM_DEFAULT_COLOR_BRIGHTNESS),
-							ColorPaletteConstants.ROOM_DEFAULT_COLOR_OPACITY);
+													.generateRandomColor(ColorPaletteConstants.ROOM_DEFAULT_COLOR),
+											ColorPaletteConstants.ROOM_DEFAULT_COLOR_SATURATION),
+							ColorPaletteConstants.ROOM_DEFAULT_COLOR_BRIGHTNESS);
 		} else {
-			this.backgroundColor = ColorPaletteConstants.ROOM_DEFAULT_COLOR;
+			color = ColorPaletteConstants.ROOM_DEFAULT_COLOR;
 		}
+		room = parent.getRoomBuilder().createRoom("Room Name", color);
 	}
 
 	public void setX(int x) {
@@ -79,12 +80,24 @@ public class MapRoom {
 		this.bounds.y = y;
 	}
 
+	public Room getRoom() {
+		return room;
+	}
+
 	public void setHeight(int height) {
 		this.bounds.height = height;
 	}
 
 	public void setWidth(int width) {
 		this.bounds.width = width;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 
 	public void stickToMouse() {
@@ -107,14 +120,6 @@ public class MapRoom {
 		snapToGrid();
 	}
 
-	public void deleteStuckPiece() {
-
-	}
-
-	public HallwaySet getHallways() {
-		return hallways;
-	}
-
 	public Rectangle getBounds() {
 		return bounds;
 	}
@@ -124,15 +129,81 @@ public class MapRoom {
 	}
 
 	public void draw(Graphics g) {
-		g.setColor(backgroundColor);
+		if (isSelected()) {
+			//this is to avoid little corner blanks
+			double amountInward = (bounds.getWidth() + bounds.getHeight()) / 10;
+			
+			double x = bounds.getX() + amountInward;
+			double y = bounds.getY() + amountInward;
+			drawSelection(
+					(Graphics2D) g,
+					new Rectangle2D.Double(x, y, bounds.getWidth() - amountInward*2, bounds.getHeight() - amountInward*2), 30);
+		}
+		g.setColor(room.getBackgroundColor());
 		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height,
 				CORNER_ROUNDNESS, CORNER_ROUNDNESS);
-
-		for (Optional<MapHallway> hallway : hallways) {
+		
+		for (Optional<MapHallway> hallway : room.getHallways()) {
 			if (hallway.isPresent()) {
 				hallway.get().draw(g);
 			}
 		}
+	}
+
+	private void drawSelection(Graphics2D g, Rectangle2D r, double s) {
+		Color c0 = ColorUtils.mapBrightness(getRoom().getBackgroundColor(),
+				0.9f);
+		Color c1 = new Color(0, 0, 0, 0);
+
+		double x0 = r.getMinX();
+		double y0 = r.getMinY();
+		double x1 = r.getMaxX();
+		double y1 = r.getMaxY();
+		double w = r.getWidth();
+		double h = r.getHeight();
+
+		// Left
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0,
+				new Point2D.Double(x0 - s, y0), c1));
+		g.fill(new Rectangle2D.Double(x0 - s, y0, s, h));
+
+		// Right
+		g.setPaint(new GradientPaint(new Point2D.Double(x1, y0), c0,
+				new Point2D.Double(x1 + s, y0), c1));
+		g.fill(new Rectangle2D.Double(x1, y0, s, h));
+
+		// Top
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0,
+				new Point2D.Double(x0, y0 - s), c1));
+		g.fill(new Rectangle2D.Double(x0, y0 - s, w, s));
+
+		// Bottom
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y1), c0,
+				new Point2D.Double(x0, y1 + s), c1));
+		g.fill(new Rectangle2D.Double(x0, y1, w, s));
+
+		float fractions[] = new float[] { 0.0f, 1.0f };
+		Color colors[] = new Color[] { c0, c1 };
+
+		// Top Left
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y0
+				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.fill(new Rectangle2D.Double(x0 - s, y0 - s, s, s));
+
+		// Top Right
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y0
+				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.fill(new Rectangle2D.Double(x1, y0 - s, s, s));
+
+		// Bottom Left
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y1
+				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.fill(new Rectangle2D.Double(x0 - s, y1, s, s));
+
+		// Bottom Right
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y1
+				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.fill(new Rectangle2D.Double(x1, y1, s, s));
 	}
 
 	public void drawEmptyHallways(Graphics2D g) {
@@ -159,7 +230,6 @@ public class MapRoom {
 		pressedPoint = Optional.absent();
 	}
 
-	// REPAINT after calling this method
 	public void mouseDragged(MouseEvent e) {
 		if (!pressedPoint.isPresent()) {
 			return;
@@ -169,6 +239,7 @@ public class MapRoom {
 		setY((int) Math.round(bounds.y
 				- (pressedPoint.get().y - e.getPoint().y) / parent.getScale()));
 		pressedPoint = Optional.of(e.getPoint());
+		parent.repaint();
 	}
 
 	public void snapToGrid() {
@@ -183,91 +254,6 @@ public class MapRoom {
 		} else {
 			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE)
 					+ MapComponent.GRID_SIZE);
-		}
-	}
-
-	public static class HallwaySet implements Iterable<Optional<MapHallway>> {
-
-		private static final int X_LEFT = 0;
-		private static final int X_CENTER = MapRoom.DEFAULT_WIDTH / 2
-				- MapHallway.EMPTY_SIZE / 2;
-		private static final int X_RIGHT = MapRoom.DEFAULT_WIDTH
-				- MapHallway.EMPTY_SIZE;
-
-		private static final int Y_TOP = 0;
-		private static final int Y_CENTER = MapRoom.DEFAULT_HEIGHT / 2
-				- MapHallway.EMPTY_SIZE / 2;
-		private static final int Y_BOTTOM = MapRoom.DEFAULT_HEIGHT
-				- MapHallway.EMPTY_SIZE;
-
-		public enum Direction {
-
-			NORTH(0, X_CENTER, Y_TOP), NORTH_EAST(1, X_RIGHT, Y_TOP), EAST(2,
-					X_RIGHT, Y_CENTER), SOUTH_EAST(3, X_RIGHT, Y_BOTTOM), SOUTH(
-					4, X_CENTER, Y_BOTTOM), SOUTH_WEST(5, X_LEFT, Y_BOTTOM), WEST(
-					6, X_LEFT, Y_CENTER), NORTH_WEST(7, X_LEFT, Y_TOP);
-
-			public final int index;
-			public final int x;
-			public final int y;
-
-			public static Direction valueOf(int index) {
-				for (Direction dir : values()) {
-					if (dir.index == index) {
-						return dir;
-					}
-				}
-				throw new IndexOutOfBoundsException(
-						"Index out of range 0-7, was " + index);
-			}
-
-			private Direction(int num, int x, int y) {
-				this.index = num;
-				this.x = x;
-				this.y = y;
-			}
-		}
-
-		@SuppressWarnings("unchecked")
-		private Optional<MapHallway>[] hallways = (Optional<MapHallway>[]) new Optional[Direction
-				.values().length];
-
-		public HallwaySet() {
-			for (int i = 0; i < hallways.length; i++) {
-				hallways[i] = Optional.absent();
-			}
-		}
-
-		public void setHallway(Direction direction, Optional<MapHallway> hallway) {
-			this.hallways[direction.index] = hallway;
-		}
-
-		public Optional<MapHallway> getHallway(Direction direction) {
-			return this.hallways[direction.index];
-		}
-
-		@Override
-		public Iterator<Optional<MapHallway>> iterator() {
-			Iterator<Optional<MapHallway>> it = new Iterator<Optional<MapHallway>>() {
-
-				private int currentIndex = 0;
-
-				@Override
-				public boolean hasNext() {
-					return currentIndex < Direction.values().length;
-				}
-
-				@Override
-				public Optional<MapHallway> next() {
-					return hallways[currentIndex++];
-				}
-
-				@Override
-				public void remove() {
-					throw new UnsupportedOperationException();
-				}
-			};
-			return it;
 		}
 	}
 

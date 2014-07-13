@@ -39,4 +39,13 @@ public final class ColorUtils {
 	public static Color mapOpacity(Color init, float opacity) {
 		return new Color(init.getRed(), init.getGreen(), init.getBlue(), (int)(opacity * 255));
 	}
+	public static Color findHighContrast(Color color){
+		int red = color.getRed();
+		int green = color.getGreen();
+		int blue = color.getBlue();
+		
+		int total = Math.max(red, Math.max(green, blue)) + Math.min(red, Math.min(green, blue));
+		
+		return new Color(total- red, total - green, total - blue);		
+	}
 }

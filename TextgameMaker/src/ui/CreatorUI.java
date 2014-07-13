@@ -3,18 +3,22 @@ package ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
+import javax.swing.JButton;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import ui.windows.BackgroundUI;
-import ui.windows.WindowComponent;
 import ui.windows.map.MapRoom;
 import ui.windows.map.main.MapComponent;
 import ui.windows.map.main.MapComponent.Tool;
@@ -23,17 +27,13 @@ public class CreatorUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private JPanel moveablePane = new JPanel();
 	private Container backgroundPane;
-	private JLayeredPane layers = new JLayeredPane();
-	private ComponentMover componentMover = new ComponentMover();
-	private ComponentResizer componentResizer = new ComponentResizer();
+	private JDesktopPane desktop = new JDesktopPane();
 
 	private MapComponent mapPanel;
 
 	public CreatorUI() {
 		super("Struix");
-		componentMover.setAutoLayout(true);
 
 		ActionListener dragToolListener = new ActionListener() {
 			@Override
@@ -52,10 +52,11 @@ public class CreatorUI extends JFrame {
 					mapPanel.setCurrentTool(Tool.CREATE_ROOM);
 					// 1000 extra just to be safe
 					mapPanel.createRoomAtPoint(
-							(int) (mapPanel.getCurrentX()*mapPanel.getScale() - MapRoom.DEFAULT_WIDTH
-									- 1000),
-							(int) (mapPanel.getCurrentY()*mapPanel.getScale() - MapRoom.DEFAULT_HEIGHT
-									- 1000)).stickToMouse();
+							(int) (mapPanel.getCurrentX() * mapPanel.getScale()
+									- MapRoom.DEFAULT_WIDTH - 1000),
+							(int) (mapPanel.getCurrentY() * mapPanel.getScale()
+									- MapRoom.DEFAULT_HEIGHT - 1000))
+							.stickToMouse();
 				}
 			}
 		};
@@ -102,7 +103,7 @@ public class CreatorUI extends JFrame {
 
 			}
 		};
-		layers.addComponentListener(new ComponentListener() {
+		desktop.addComponentListener(new ComponentListener() {
 			public void componentHidden(ComponentEvent e) {
 			}
 
@@ -114,11 +115,10 @@ public class CreatorUI extends JFrame {
 
 			public void componentResized(ComponentEvent e) {
 				backgroundPane.setSize(getSize());
-				moveablePane.setSize(getSize());
 			}
 		});
 
-		mapPanel = new MapComponent();
+		mapPanel = new MapComponent(this);
 		JPanel worldSelectorPanel = new JPanel();
 		worldSelectorPanel.setBackground(new Color(255, 0, 100, 100));
 		JPanel entityListPanel = new JPanel();
@@ -130,19 +130,14 @@ public class CreatorUI extends JFrame {
 				createEntityListener, deleteEntityListener, mapPanel,
 				worldSelectorPanel, entityListPanel);
 
-		moveablePane.setLayout(null);
-		moveablePane.setOpaque(false);
+		desktop.setLayout(new BorderLayout());
+		desktop.setOpaque(false);
 
-		layers.setLayout(new BorderLayout());
+		desktop.setLayer(backgroundPane, JLayeredPane.DEFAULT_LAYER);
+		desktop.add(backgroundPane, BorderLayout.CENTER);
 
-		layers.setLayer(moveablePane, JLayeredPane.DRAG_LAYER);
-		layers.add(moveablePane, BorderLayout.CENTER);
-
-		layers.setLayer(backgroundPane, JLayeredPane.DEFAULT_LAYER);
-		layers.add(backgroundPane, BorderLayout.CENTER);
-
-		add(layers, BorderLayout.CENTER);
-		layers.setPreferredSize(backgroundPane.getPreferredSize());
+		add(desktop, BorderLayout.CENTER);
+		desktop.setPreferredSize(backgroundPane.getPreferredSize());
 
 		pack();
 	}
@@ -171,16 +166,6 @@ public class CreatorUI extends JFrame {
 		}
 	}
 
-	public void addWindow(WindowComponent window) {
-		this.componentMover.registerComponent(window);
-		this.componentResizer.registerComponent(window);
-
-		this.componentMover
-				.setDragInsets(this.componentResizer.getDragInsets());
-
-		this.moveablePane.add(window);
-	}
-
 	public static void main(String[] args) {
 		setPLAF("Nimbus");
 
@@ -194,6 +179,23 @@ public class CreatorUI extends JFrame {
 			}
 		});
 
+	}
+
+	public void addWindow(JPanel window, Dimension size, Point location, String title) {
+		// For some reason, without this for loop, the room opens up in full screen?
+		for (int i = 0; i < 2; i++) {
+			JInternalFrame internalFrame = new JInternalFrame(title, false,
+					true, false, false);
+			if (i == 0) {
+				internalFrame.getContentPane().add(window);// ????????????????????????
+				internalFrame.setSize(size);
+				internalFrame.setLocation(location);
+			}
+			desktop.add(internalFrame);
+			desktop.setLayer(internalFrame, JLayeredPane.DRAG_LAYER);
+			internalFrame.setVisible(i == 0);
+		}
+		repaint();
 	}
 
 }
