@@ -12,9 +12,9 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import logic.creator.Room;
-import logic.creator.Room.HallwaySet;
-import logic.creator.Room.HallwaySet.Direction;
+import logic.creator.GameRoom;
+import logic.creator.GameRoom.HallwaySet;
+import logic.creator.GameRoom.HallwaySet.Direction;
 import ui.ColorPaletteConstants;
 import ui.ColorUtils;
 import ui.windows.map.main.MapComponent;
@@ -34,7 +34,7 @@ public class MapRoom {
 
 	private MapComponent parent;
 
-	private Room room;
+	private GameRoom room;
 
 	private boolean selected = false;
 
@@ -80,7 +80,7 @@ public class MapRoom {
 		this.bounds.y = y;
 	}
 
-	public Room getRoom() {
+	public GameRoom getRoom() {
 		return room;
 	}
 
@@ -101,11 +101,8 @@ public class MapRoom {
 	}
 
 	public void stickToMouse() {
-		if (parent.getStuckToMouse().isPresent())
-			throw new AlreadyExistsException(
-					"Mouse already has a room stuck to it!");
-
-		parent.setStuckToMouse(Optional.of(this));
+		if (!parent.getStuckToMouse().isPresent())
+			parent.setStuckToMouse(Optional.of(this));
 	}
 
 	public void unstickToMouse() {
@@ -130,19 +127,20 @@ public class MapRoom {
 
 	public void draw(Graphics g) {
 		if (isSelected()) {
-			//this is to avoid little corner blanks
+			// this is to avoid little corner blanks
 			double amountInward = (bounds.getWidth() + bounds.getHeight()) / 10;
-			
+
 			double x = bounds.getX() + amountInward;
 			double y = bounds.getY() + amountInward;
-			drawSelection(
-					(Graphics2D) g,
-					new Rectangle2D.Double(x, y, bounds.getWidth() - amountInward*2, bounds.getHeight() - amountInward*2), 30);
+			drawSelection((Graphics2D) g,
+					new Rectangle2D.Double(x, y, bounds.getWidth()
+							- amountInward * 2, bounds.getHeight()
+							- amountInward * 2), 30);
 		}
 		g.setColor(room.getBackgroundColor());
 		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height,
 				CORNER_ROUNDNESS, CORNER_ROUNDNESS);
-		
+
 		for (Optional<MapHallway> hallway : room.getHallways()) {
 			if (hallway.isPresent()) {
 				hallway.get().draw(g);
@@ -216,29 +214,21 @@ public class MapRoom {
 		g.translate(-this.getBounds().x, -this.getBounds().y);
 	}
 
-	private Optional<Point> pressedPoint = Optional.absent();
+	public Optional<Point> pressedPoint = Optional.absent();
 
 	public void mousePressed(MouseEvent e) {
-		pressedPoint = Optional.of(e.getPoint());
-	}
-
-	public void mouseReleased(MouseEvent e) {
-		if (pressedPoint.isPresent()) {
-			snapToGrid();
-		}
-
-		pressedPoint = Optional.absent();
+		setPressedPoint(Optional.of(e.getPoint()));
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		if (!pressedPoint.isPresent()) {
+		if (!getPressedPoint().isPresent()) {
 			return;
 		}
 		setX((int) Math.round(bounds.x
-				- (pressedPoint.get().x - e.getPoint().x) / parent.getScale()));
+				- (getPressedPoint().get().x - e.getPoint().x) / parent.getScale()));
 		setY((int) Math.round(bounds.y
-				- (pressedPoint.get().y - e.getPoint().y) / parent.getScale()));
-		pressedPoint = Optional.of(e.getPoint());
+				- (getPressedPoint().get().y - e.getPoint().y) / parent.getScale()));
+		setPressedPoint(Optional.of(e.getPoint()));
 		parent.repaint();
 	}
 
@@ -255,6 +245,14 @@ public class MapRoom {
 			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE)
 					+ MapComponent.GRID_SIZE);
 		}
+	}
+
+	public Optional<Point> getPressedPoint() {
+		return pressedPoint;
+	}
+
+	private void setPressedPoint(Optional<Point> optional) {
+		this.pressedPoint = optional;
 	}
 
 }

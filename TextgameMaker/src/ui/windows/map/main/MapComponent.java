@@ -16,8 +16,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import logic.creator.Room;
-import logic.creator.Room.RoomHandler;
+import logic.creator.GameRoom;
+import logic.creator.GameRoom.RoomHandler;
 import logic.words.WordSet;
 import ui.ColorPaletteConstants;
 import ui.CreatorUI;
@@ -45,14 +45,15 @@ public class MapComponent extends JPanel {
 
 	private Tool currentTool = Tool.DRAG_ROOM;
 
-	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
+	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(
+			this);
 	private final MapMouseListener mouseListener = new MapMouseListener(this);
-	
-	private WordSet wordSet = new WordSet();
-	private RoomHandler roomBuilder = new RoomHandler(wordSet);
+
+	private final WordSet wordSet = new WordSet();
+	private final RoomHandler roomBuilder = new RoomHandler(wordSet);
 
 	private CreatorUI creatorUI;
-	
+
 	public enum Tool {
 		DRAG_ROOM, CREATE_ROOM, CREATE_HALLWAY;
 	}
@@ -80,7 +81,7 @@ public class MapComponent extends JPanel {
 		JPanel buttonHolder = new JPanel();
 		buttonHolder.add(button);
 		buttonHolder.setOpaque(false);
-		
+
 		this.add(buttonHolder, BorderLayout.EAST);
 	}
 
@@ -96,8 +97,8 @@ public class MapComponent extends JPanel {
 		return mapRooms;
 	}
 
-	public MapRoom createRoomAtPoint(int x, int y) {
-		MapRoom mapRoom = new MapRoom(this, new Point(x, y));
+	public MapRoom createRoomAtPoint(int xPos, int yPos) {
+		MapRoom mapRoom = new MapRoom(this, new Point(xPos, yPos));
 		addRoom(mapRoom);
 		mapRoom.snapToGrid();
 		return mapRoom;
@@ -140,7 +141,7 @@ public class MapComponent extends JPanel {
 				c.drawEmptyHallways(g);
 			}
 		}
-		if(this.mouseListener.hallwayToMouse.isPresent()){
+		if (this.mouseListener.hallwayToMouse.isPresent()) {
 			g.setColor(Color.BLACK);
 			g.draw(mouseListener.hallwayToMouse.get());
 		}
@@ -178,12 +179,15 @@ public class MapComponent extends JPanel {
 	}
 
 	public void addHallway(MapRoom first,
-			Room.HallwaySet.Direction firstDirection, MapRoom second,
-			Room.HallwaySet.Direction secondDirection) {
+			GameRoom.HallwaySet.Direction firstDirection, MapRoom second,
+			GameRoom.HallwaySet.Direction secondDirection) {
 
-		MapHallway hallway = new MapHallway(first, firstDirection, second, secondDirection);
-		first.getRoom().getHallways().setHallway(firstDirection, Optional.of(hallway));
-		second.getRoom().getHallways().setHallway(secondDirection, Optional.of(hallway));
+		MapHallway hallway = new MapHallway(first, firstDirection, second,
+				secondDirection);
+		first.getRoom().getHallways()
+				.setHallway(firstDirection, Optional.of(hallway));
+		second.getRoom().getHallways()
+				.setHallway(secondDirection, Optional.of(hallway));
 	}
 
 	private void addRoom(MapRoom room) {

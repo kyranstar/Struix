@@ -13,7 +13,7 @@ import ui.windows.map.MapRoom;
 
 import com.google.common.base.Optional;
 
-public class Room {
+public class GameRoom {
 	//GUI
 	private Color backgroundColor;
 
@@ -25,7 +25,7 @@ public class Room {
 	private HallwaySet hallways = new HallwaySet();
 	private RoomHandler parent;
 
-	private Room(RoomHandler parent, String nameGiven, Word word, Color backgroundColor){
+	private GameRoom(RoomHandler parent, String nameGiven, Word word, Color backgroundColor){
 		this.parent = parent;
 		this.setName(nameGiven);
 		this.name = word;
@@ -62,8 +62,8 @@ public class Room {
 			this.wordSet = words;
 		}
 		
-		public Room createRoom(String name, Color colorInMap){
-			return new Room(this, name, wordSet.getMeaning(name), colorInMap);
+		public GameRoom createRoom(String name, Color colorInMap){
+			return new GameRoom(this, name, wordSet.getMeaning(name), colorInMap);
 		}
 	}
 	public static class HallwaySet implements Iterable<Optional<MapHallway>> {

@@ -123,7 +123,7 @@ public class RoomDialogue extends JPanel {
 		changeColorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Color changedTo = getColorDialogue(room.getRoom()
+				Color changedTo = getColorDialogue(ColorDialogueType.HSL, room.getRoom()
 						.getBackgroundColor());
 				room.getRoom().setBackgroundColor(changedTo);
 				setAllComponentsColor(room.getRoom().getBackgroundColor());
@@ -570,11 +570,10 @@ public class RoomDialogue extends JPanel {
 		return main;
 	}// </editor-fold>
 
-	private Color getColorDialogue(Color defaultColor) {
-		// Swatches, HSV, HSL, RGB, CMYK
-		final String ALLOWED_PANEL = "HSV";
+	private Color getColorDialogue(ColorDialogueType type, Color defaultColor) {
+		final String ALLOWED_PANEL = type.name;
 
-		JColorChooser chooser = new JColorChooser();
+		JColorChooser chooser = new JColorChooser(defaultColor);
 		AbstractColorChooserPanel[] panels = chooser.getChooserPanels();
 		for (AbstractColorChooserPanel accp : panels) {
 			if (accp.getDisplayName().equals(ALLOWED_PANEL)) {
@@ -587,7 +586,18 @@ public class RoomDialogue extends JPanel {
 		}
 		return colorVal;
 	}
-
+	enum ColorDialogueType{
+		Swatches("Swatches"),
+		HSV("HSV"),
+		HSL("HSL"),
+		RGB("RGB"),
+		CMYK("CMYK");
+		
+		public final String name;
+		private ColorDialogueType(String name){
+			this.name = name;
+		}
+	}
 	private void entranceTextButtonActionPerformed(
 			java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
