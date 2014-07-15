@@ -35,8 +35,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		Point mouse = e.getPoint();
-		mouse.translate((int) (getCurrentX() * getScale()),
-				(int) (getCurrentY() * getScale()));
+		mouse.translate((int) (getCurrentX() * getScale()), (int) (getCurrentY() * getScale()));
 
 		if (getCurrentTool() == Tool.DRAG_ROOM) {
 			if (e.getClickCount() >= 2) {
@@ -56,9 +55,8 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		for (MapRoom room : getMapRooms()) {
 			if (room.getBounds().contains(mouse)) {
 				RoomDialogue roomWindow = new RoomDialogue(room);
-				this.parent.getCreatorUI().addWindow(roomWindow,
-						roomWindow.getPreferredSize(), e.getLocationOnScreen(),
-						room.getRoom().getName());
+				this.parent.getCreatorUI().addWindow(roomWindow, roomWindow.getPreferredSize(),
+						e.getLocationOnScreen(), room.getRoom().getName());
 				deselectRoom();
 				return;
 			}
@@ -96,8 +94,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 			handleMousePressCreateHallway(e);
 			break;
 		default:
-			throw new UnhandledToolException(getCurrentTool()
-					+ " unhandled for mouse press");
+			throw new UnhandledToolException(getCurrentTool() + " unhandled for mouse press");
 		}
 		parent.repaint();
 	}
@@ -107,8 +104,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		deselectRoom();
 		for (MapRoom c : getMapRooms()) {
 			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX() * getScale()),
-					(int) (getCurrentY() * getScale()));
+			mouse.translate((int) (getCurrentX() * getScale()), (int) (getCurrentY() * getScale()));
 
 			Rectangle bounds = (Rectangle) c.getBounds().clone();
 			bounds.x *= getScale();
@@ -129,25 +125,21 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		if (parent.getStuckToMouse().isPresent()) {
 			MapRoom room = parent.getStuckToMouse().get();
 			room.snapToGrid();
-			if (twoRoomsInPosition(room.getLocation())) {
-				return;
-			}
+			if (twoRoomsInPosition(room.getLocation())) { return; }
 		}
 		// unstick to mouse
 		parent.setStuckToMouse(Optional.absent());
 
 		Point mouse = e.getPoint();
-		mouse.translate(
-				(int) (getCurrentX() / getScale() - MapRoom.DEFAULT_WIDTH / 2),
-				(int) (getCurrentY() / getScale() - MapRoom.DEFAULT_HEIGHT / 2));
+		mouse.translate((int) (getCurrentX() / getScale() - MapRoom.DEFAULT_WIDTH / 2), (int) (getCurrentY()
+				/ getScale() - MapRoom.DEFAULT_HEIGHT / 2));
 		parent.createRoomAtPoint(mouse.x, mouse.y).stickToMouse();
 	}
 
 	private void handleMousePressCreateHallway(MouseEvent e) {
 		for (MapRoom c : getMapRooms()) {
 			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX() * getScale()),
-					(int) (getCurrentY() * getScale()));
+			mouse.translate((int) (getCurrentX() * getScale()), (int) (getCurrentY() * getScale()));
 
 			Rectangle roomBounds = (Rectangle) c.getBounds().clone();
 			roomBounds.x *= getScale();
@@ -160,8 +152,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 				for (Optional<MapHallway> hallway : c.getRoom().getHallways()) {
 					if (!hallway.isPresent()) {
 						Direction dir = HallwaySet.Direction.valueOf(index);
-						Rectangle circleBounds = new Rectangle(dir.x, dir.y,
-								MapRoom.EMPTY_HALLWAY_SIZE,
+						Rectangle circleBounds = new Rectangle(dir.x, dir.y, MapRoom.EMPTY_HALLWAY_SIZE,
 								MapRoom.EMPTY_HALLWAY_SIZE);
 						circleBounds.x += roomBounds.x;
 						circleBounds.y += roomBounds.y;
@@ -172,11 +163,9 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 						if (circleBounds.contains(mouse)) {
 							if (this.pressedRoom.isPresent()) {
 								Direction oneDir = Direction.valueOf(index);
-								Direction twoDir = Direction
-										.valueOf(pressedHallwayIndex.get());
+								Direction twoDir = Direction.valueOf(pressedHallwayIndex.get());
 
-								parent.addHallway(c, oneDir, pressedRoom.get(),
-										twoDir);
+								parent.addHallway(c, oneDir, pressedRoom.get(), twoDir);
 
 								this.pressedRoom = Optional.absent();
 								pressedHallwayIndex = Optional.absent();
@@ -186,17 +175,11 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 								this.pressedRoom = Optional.of(c);
 
 								int x = pressedRoom.get().getBounds().x
-										+ Direction.valueOf(pressedHallwayIndex
-												.get()).x
-										+ MapHallway.EMPTY_SIZE / 2;
+										+ Direction.valueOf(pressedHallwayIndex.get()).x + MapHallway.EMPTY_SIZE / 2;
 								int y = pressedRoom.get().getBounds().y
-										+ Direction.valueOf(pressedHallwayIndex
-												.get()).y
-										+ MapHallway.EMPTY_SIZE / 2;
+										+ Direction.valueOf(pressedHallwayIndex.get()).y + MapHallway.EMPTY_SIZE / 2;
 
-								this.hallwayToMouse = Optional
-										.of(new Line2D.Double(x, y, mouse.x,
-												mouse.y));
+								this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
 
 							}
 						}
@@ -228,21 +211,22 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		case DRAG_ROOM:
 			pressedPoint = Optional.absent();
 			for (MapRoom c : getMapRooms()) {
-				if(c.getPressedPoint().isPresent()){
+				if (c.getPressedPoint().isPresent()) {
 					c.pressedPoint = Optional.absent();
 					c.snapToGrid();
-					if(twoRoomsInPosition(c.getLocation())){
+					if (twoRoomsInPosition(c.getLocation())) {
 						c.stickToMouse();
-					}					
+					}
 					return;
 				}
 			}
 			break;
-		case CREATE_ROOM: break;
-		case CREATE_HALLWAY: break;
+		case CREATE_ROOM:
+			break;
+		case CREATE_HALLWAY:
+			break;
 		default:
-			throw new UnhandledToolException(getCurrentTool()
-					+ " unhandled for mouse release");
+			throw new UnhandledToolException(getCurrentTool() + " unhandled for mouse release");
 		}
 
 		parent.repaint();
@@ -255,10 +239,8 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 				c.mouseDragged(e);
 			}
 			if (pressedPoint.isPresent()) {
-				parent.setCurrentX((int) (getCurrentX() + (pressedPoint.get().x - e
-						.getPoint().x) / getScale()));
-				parent.setCurrentY((int) (getCurrentY() + (pressedPoint.get().y - e
-						.getPoint().y) / getScale()));
+				parent.setCurrentX((int) (getCurrentX() + (pressedPoint.get().x - e.getPoint().x) / getScale()));
+				parent.setCurrentY((int) (getCurrentY() + (pressedPoint.get().y - e.getPoint().y) / getScale()));
 
 				pressedPoint = Optional.of(e.getPoint());
 			}
@@ -275,24 +257,18 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		if (parent.getStuckToMouse().isPresent()) {
 			MapRoom room = parent.getStuckToMouse().get();
 
-			room.setX((int) (getCurrentX() + e.getPoint().x / getScale() - room
-					.getBounds().width / 2));
-			room.setY((int) (getCurrentY() + e.getPoint().y / getScale() - room
-					.getBounds().height / 2));
+			room.setX((int) (getCurrentX() + (((double) e.getPoint().x) / getScale()) - room.getBounds().width / 2));
+			room.setY((int) (getCurrentY() + (((double) e.getPoint().y) / getScale()) - room.getBounds().height / 2));
 		} else if (this.pressedHallwayIndex.isPresent()) {
 			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX() * getScale()),
-					(int) (getCurrentY() * getScale()));
+			mouse.translate((int) (getCurrentX() * getScale()), (int) (getCurrentY() * getScale()));
 
-			int x = pressedRoom.get().getBounds().x
-					+ Direction.valueOf(pressedHallwayIndex.get()).x
+			int x = pressedRoom.get().getBounds().x + Direction.valueOf(pressedHallwayIndex.get()).x
 					+ MapHallway.EMPTY_SIZE / 2;
-			int y = pressedRoom.get().getBounds().y
-					+ Direction.valueOf(pressedHallwayIndex.get()).y
+			int y = pressedRoom.get().getBounds().y + Direction.valueOf(pressedHallwayIndex.get()).y
 					+ MapHallway.EMPTY_SIZE / 2;
 
-			this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x,
-					mouse.y));
+			this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
 		}
 		parent.repaint();
 	}

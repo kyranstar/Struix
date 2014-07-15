@@ -416,10 +416,6 @@
             <ruleset>Coupling</ruleset>
         </rule>
         <rule>
-            <name>LawOfDemeter</name>
-            <ruleset>Coupling</ruleset>
-        </rule>
-        <rule>
             <name>LooseCoupling</name>
             <ruleset>Coupling</ruleset>
         </rule>

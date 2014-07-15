@@ -45,8 +45,7 @@ public class MapComponent extends JPanel {
 
 	private Tool currentTool = Tool.DRAG_ROOM;
 
-	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(
-			this);
+	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
 	private final MapMouseListener mouseListener = new MapMouseListener(this);
 
 	private final WordSet wordSet = new WordSet();
@@ -58,8 +57,11 @@ public class MapComponent extends JPanel {
 		DRAG_ROOM, CREATE_ROOM, CREATE_HALLWAY;
 	}
 
-	public MapComponent(CreatorUI creatorUI) {
+	private String worldName;
+
+	public MapComponent(String name, CreatorUI creatorUI) {
 		super();
+		this.setWorldName(name);
 		this.setCreatorUI(creatorUI);
 		setPreferredSize(new Dimension(200, 200));
 		setSize(getPreferredSize());
@@ -112,12 +114,9 @@ public class MapComponent extends JPanel {
 	public void paintComponent(Graphics graphics) {
 		Graphics2D g = (Graphics2D) graphics;
 
-		g.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON));
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
+		g.addRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
@@ -125,12 +124,9 @@ public class MapComponent extends JPanel {
 		g.scale(scale, scale);
 		g.setColor(ColorPaletteConstants.MAP_ROOM_HOLDER);
 		g.setStroke(new BasicStroke(2));
-		for (int x = -(currentX % GRID_SIZE) - GRID_SIZE; x < getWidth()
-				/ scale; x += GRID_SIZE) {
-			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight()
-					/ scale; y += GRID_SIZE) {
-				g.drawRoundRect(x, y, GRID_SIZE - SPACING_SIZE, GRID_SIZE
-						- SPACING_SIZE, MapRoom.CORNER_ROUNDNESS,
+		for (int x = -(currentX % GRID_SIZE) - GRID_SIZE; x < getWidth() / scale; x += GRID_SIZE) {
+			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight() / scale; y += GRID_SIZE) {
+				g.drawRoundRect(x, y, GRID_SIZE - SPACING_SIZE, GRID_SIZE - SPACING_SIZE, MapRoom.CORNER_ROUNDNESS,
 						MapRoom.CORNER_ROUNDNESS);
 			}
 		}
@@ -162,32 +158,28 @@ public class MapComponent extends JPanel {
 		return currentX;
 	}
 
-	public void setCurrentX(int d) {
-		this.currentX = d;
+	public void setCurrentX(int curentX) {
+		this.currentX = curentX;
 	}
 
 	public int getCurrentY() {
 		return currentY;
 	}
 
-	public void setCurrentY(int d) {
-		this.currentY = d;
+	public void setCurrentY(int currentY) {
+		this.currentY = currentY;
 	}
 
 	public Optional<MapRoom> getStuckToMouse() {
 		return stuckToMouse;
 	}
 
-	public void addHallway(MapRoom first,
-			GameRoom.HallwaySet.Direction firstDirection, MapRoom second,
+	public void addHallway(MapRoom first, GameRoom.HallwaySet.Direction firstDirection, MapRoom second,
 			GameRoom.HallwaySet.Direction secondDirection) {
 
-		MapHallway hallway = new MapHallway(first, firstDirection, second,
-				secondDirection);
-		first.getRoom().getHallways()
-				.setHallway(firstDirection, Optional.of(hallway));
-		second.getRoom().getHallways()
-				.setHallway(secondDirection, Optional.of(hallway));
+		MapHallway hallway = new MapHallway(first, firstDirection, second, secondDirection);
+		first.getRoom().getHallways().setHallway(firstDirection, Optional.of(hallway));
+		second.getRoom().getHallways().setHallway(secondDirection, Optional.of(hallway));
 	}
 
 	private void addRoom(MapRoom room) {
@@ -218,5 +210,13 @@ public class MapComponent extends JPanel {
 
 	public void setCreatorUI(CreatorUI creatorUI) {
 		this.creatorUI = creatorUI;
+	}
+
+	public String getWorldName() {
+		return worldName;
+	}
+
+	public void setWorldName(String worldName) {
+		this.worldName = worldName;
 	}
 }

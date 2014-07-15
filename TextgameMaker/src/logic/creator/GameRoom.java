@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import logic.object.GameObject;
 import logic.words.Word;
@@ -139,6 +140,9 @@ public class GameRoom {
 
 				@Override
 				public Optional<MapHallway> next() {
+					if(currentIndex >= hallways.length){
+						throw new NoSuchElementException();
+					}
 					return hallways[currentIndex++];
 				}
 

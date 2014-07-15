@@ -10,16 +10,18 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import ui.windows.BackgroundUI;
+import ui.windows.map.MapComponentsHolder;
 import ui.windows.map.MapRoom;
+import ui.windows.map.WorldSelectorPanel;
 import ui.windows.map.main.MapComponent;
 import ui.windows.map.main.MapComponent.Tool;
 
@@ -30,7 +32,7 @@ public class CreatorUI extends JFrame {
 	private Container backgroundPane;
 	private JDesktopPane desktop = new JDesktopPane();
 
-	private MapComponent mapPanel;
+	private WorldSelectorPanel worldSelectorPanel;
 
 	public CreatorUI() {
 		super("Struix");
@@ -38,9 +40,9 @@ public class CreatorUI extends JFrame {
 		ActionListener dragToolListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (mapPanel.getCurrentTool() != Tool.DRAG_ROOM) {
-					mapPanel.setCurrentTool(Tool.DRAG_ROOM);
-					mapPanel.deleteStuckToMouse();
+				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.DRAG_ROOM) {
+					worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.DRAG_ROOM);
+					worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
 				}
 			}
 		};
@@ -48,14 +50,16 @@ public class CreatorUI extends JFrame {
 		ActionListener createRoomListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (mapPanel.getCurrentTool() != Tool.CREATE_ROOM) {
-					mapPanel.setCurrentTool(Tool.CREATE_ROOM);
+				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.CREATE_ROOM) {
+					worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.CREATE_ROOM);
 					// 1000 extra just to be safe
-					mapPanel.createRoomAtPoint(
-							(int) (mapPanel.getCurrentX() * mapPanel.getScale()
-									- MapRoom.DEFAULT_WIDTH - 1000),
-							(int) (mapPanel.getCurrentY() * mapPanel.getScale()
-									- MapRoom.DEFAULT_HEIGHT - 1000))
+					worldSelectorPanel
+							.getCurrentWorld()
+							.createRoomAtPoint(
+									(int) (worldSelectorPanel.getCurrentWorld().getCurrentX()
+											* worldSelectorPanel.getCurrentWorld().getScale() - MapRoom.DEFAULT_WIDTH - 1000),
+									(int) (worldSelectorPanel.getCurrentWorld().getCurrentY()
+											* worldSelectorPanel.getCurrentWorld().getScale() - MapRoom.DEFAULT_HEIGHT - 1000))
 							.stickToMouse();
 				}
 			}
@@ -63,10 +67,10 @@ public class CreatorUI extends JFrame {
 		ActionListener createHallwayListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (mapPanel.getCurrentTool() != Tool.CREATE_HALLWAY) {
-					mapPanel.setCurrentTool(Tool.CREATE_HALLWAY);
-					mapPanel.deleteStuckToMouse();
-					mapPanel.repaint();
+				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.CREATE_HALLWAY) {
+					worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.CREATE_HALLWAY);
+					worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
+					worldSelectorPanel.getCurrentWorld().repaint();
 				}
 			}
 		};
@@ -74,21 +78,24 @@ public class CreatorUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mapPanel.deleteStuckToMouse();
+				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
+				String name = JOptionPane.showInputDialog("World Name: ");
+				if (name == null) { return; }
+				worldSelectorPanel.addMapComponent(new MapComponent(name, CreatorUI.this));
 			}
 
 		};
 		ActionListener createPortalListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mapPanel.deleteStuckToMouse();
+				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
 			}
 		};
 
 		ActionListener deleteWorldListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				worldSelectorPanel.deleteCurrentWorld();
 			}
 		};
 		ActionListener createEntityListener = new ActionListener() {
@@ -118,17 +125,16 @@ public class CreatorUI extends JFrame {
 			}
 		});
 
-		mapPanel = new MapComponent(this);
-		JPanel worldSelectorPanel = new JPanel();
-		worldSelectorPanel.setBackground(new Color(255, 0, 100, 100));
+		MapComponentsHolder mapPanel = new MapComponentsHolder();
+
+		worldSelectorPanel = new WorldSelectorPanel(mapPanel);
+		worldSelectorPanel.addMapComponent(new MapComponent("Default World", this));
 		JPanel entityListPanel = new JPanel();
 		entityListPanel.setBackground(new Color(0, 100, 255, 100));
 
-		backgroundPane = new BackgroundUI().initComponents(dragToolListener,
-				createRoomListener, createHallwayListener, createWorldListener,
-				createPortalListener, deleteWorldListener,
-				createEntityListener, deleteEntityListener, mapPanel,
-				worldSelectorPanel, entityListPanel);
+		backgroundPane = new BackgroundUI().initComponents(dragToolListener, createRoomListener, createHallwayListener,
+				createWorldListener, createPortalListener, deleteWorldListener, createEntityListener,
+				deleteEntityListener, mapPanel, worldSelectorPanel, entityListPanel);
 
 		desktop.setLayout(new BorderLayout());
 		desktop.setOpaque(false);
@@ -144,25 +150,24 @@ public class CreatorUI extends JFrame {
 
 	private static void setPLAF(String name) {
 		try {
-			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager
-					.getInstalledLookAndFeels()) {
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
 				if (name.equals(info.getName())) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
 			}
 		} catch (ClassNotFoundException ex) {
-			java.util.logging.Logger.getLogger(BackgroundUI.class.getName())
-					.log(java.util.logging.Level.SEVERE, null, ex);
+			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
 		} catch (InstantiationException ex) {
-			java.util.logging.Logger.getLogger(BackgroundUI.class.getName())
-					.log(java.util.logging.Level.SEVERE, null, ex);
+			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
 		} catch (IllegalAccessException ex) {
-			java.util.logging.Logger.getLogger(BackgroundUI.class.getName())
-					.log(java.util.logging.Level.SEVERE, null, ex);
+			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
 		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
-			java.util.logging.Logger.getLogger(BackgroundUI.class.getName())
-					.log(java.util.logging.Level.SEVERE, null, ex);
+			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
 		}
 	}
 
@@ -182,10 +187,10 @@ public class CreatorUI extends JFrame {
 	}
 
 	public void addWindow(JPanel window, Dimension size, Point location, String title) {
-		// For some reason, without this for loop, the room opens up in full screen?
+		// For some reason, without this for loop, the room opens up in full
+		// screen?
 		for (int i = 0; i < 2; i++) {
-			JInternalFrame internalFrame = new JInternalFrame(title, false,
-					true, false, false);
+			JInternalFrame internalFrame = new JInternalFrame(title, false, true, false, false);
 			if (i == 0) {
 				internalFrame.getContentPane().add(window);// ????????????????????????
 				internalFrame.setSize(size);

@@ -103,19 +103,19 @@ public class RoomDialogue extends JPanel {
 		jLabel1 = new UILabel(true);
 		jSplitPane = new JSplitPane() {
 			private static final long serialVersionUID = 1L;
-			private final int location = 115;
+			private static final int LOCATION = 115;
 			{
-				setDividerLocation(location);
+				setDividerLocation(LOCATION);
 			}
 
 			@Override
 			public int getDividerLocation() {
-				return location;
+				return LOCATION;
 			}
 
 			@Override
 			public int getLastDividerLocation() {
-				return location;
+				return LOCATION;
 			}
 		};
 		changeColorButton = new UIButton(true);
