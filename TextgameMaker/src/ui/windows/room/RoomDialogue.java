@@ -18,6 +18,8 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.border.Border;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -71,11 +73,9 @@ public class RoomDialogue extends JPanel {
 		this.add(buildComponents(room));
 	}
 
-	private void setAllComponentsColor(Color color){
+	private void setAllComponentsColor(Color color) {
 		final Color ROOM_COLOR = color;
-		final Color TEXT_AREA_COLOR = ColorUtils.mapSaturation(
-				ColorUtils.mapBrightness(color, 0.85f), 0.2f);
-		
+		final Color TEXT_AREA_COLOR = ColorUtils.mapSaturation(ColorUtils.mapBrightness(color, 0.85f), 0.2f);
 
 		leftPanel.setBackground(ROOM_COLOR);
 		objectListLabel.setBackground(ROOM_COLOR);
@@ -94,7 +94,7 @@ public class RoomDialogue extends JPanel {
 		everyTurnTextArea.setBackground(TEXT_AREA_COLOR);
 		jSplitPane.setBackground(ROOM_COLOR);
 	}
-	
+
 	private Container buildComponents(final MapRoom room) {
 
 		JPanel main = new JPanel();
@@ -123,10 +123,7 @@ public class RoomDialogue extends JPanel {
 		changeColorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Color changedTo = getColorDialogue(ColorDialogueType.HSL, room.getRoom()
-						.getBackgroundColor());
-				room.getRoom().setBackgroundColor(changedTo);
-				setAllComponentsColor(room.getRoom().getBackgroundColor());
+				openColorDialogue(ColorDialogueType.HSL, room);
 			}
 
 		});
@@ -153,34 +150,26 @@ public class RoomDialogue extends JPanel {
 
 		objectListLabel = new UILabel(false);
 
-
 		entranceTextButton = new UIButton(true);
 		alternativeInputsButton = new UIButton(true);
 		createObjectButton = new UIButton(true);
 		importObjectButton = new UIButton(true);
 		objectListPanel = new JPanel();
 
-
-
 		roomNameField = new JTextField();
 
-
 		rightPanel = new JPanel();
-
 
 		jTabbedPane = new JTabbedPane();
 		jTabbedPane.setOpaque(false);
 
 		enterScriptPanel = new JPanel();
 
-
 		scriptsLabelEnter = new UILabel(false);
 		jScrollPane1 = new JScrollPane();
 		enterTextArea = new JTextArea();
 
-
 		exitScriptPanel = new JPanel();
-
 
 		jScrollPane5 = new JScrollPane();
 		exitTextArea = new JTextArea();
@@ -188,21 +177,17 @@ public class RoomDialogue extends JPanel {
 		scriptsLabelExit = new UILabel(false);
 		enterFirstScriptPanel = new JPanel();
 
-
-
 		jScrollPane4 = new JScrollPane();
 		enterFirstTextArea = new JTextArea();
 
 		scriptsLabelEnterFirst = new UILabel(false);
 		exitFirstScriptPanel = new JPanel();
 
-
 		jScrollPane3 = new JScrollPane();
 		exitFirstTextArea = new JTextArea();
 
 		scriptsLabelExitFirst = new UILabel(false);
 		everyTurnScriptPanel = new JPanel();
-
 
 		jScrollPane2 = new JScrollPane();
 		everyTurnTextArea = new JTextArea();
@@ -211,10 +196,10 @@ public class RoomDialogue extends JPanel {
 
 		GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
 		jPanel1.setLayout(jPanel1Layout);
-		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(
-				GroupLayout.Alignment.LEADING).addGap(0, 44, Short.MAX_VALUE));
-		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(
-				GroupLayout.Alignment.LEADING).addGap(0, 410, Short.MAX_VALUE));
+		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGap(0, 44,
+				Short.MAX_VALUE));
+		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGap(0, 410,
+				Short.MAX_VALUE));
 
 		jLabel1.setText("Scripts");
 
@@ -222,33 +207,29 @@ public class RoomDialogue extends JPanel {
 		objectListLabel.setText("Object List");
 
 		entranceTextButton.setText("Entrance Text");
-		entranceTextButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						entranceTextButtonActionPerformed(evt);
-					}
-				});
+		entranceTextButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				entranceTextButtonActionPerformed(evt);
+			}
+		});
 
 		alternativeInputsButton.setText("Alternative Inputs");
 
 		createObjectButton.setText("Create Object");
 
 		importObjectButton.setText("Import Object");
-		importObjectButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						importObjectButtonActionPerformed(evt);
-					}
-				});
+		importObjectButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				importObjectButtonActionPerformed(evt);
+			}
+		});
 
 		GroupLayout objectListPanelLayout = new GroupLayout(objectListPanel);
 		objectListPanel.setLayout(objectListPanelLayout);
-		objectListPanelLayout.setHorizontalGroup(objectListPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGap(0,
-						103, Short.MAX_VALUE));
-		objectListPanelLayout.setVerticalGroup(objectListPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGap(0,
-						320, Short.MAX_VALUE));
+		objectListPanelLayout.setHorizontalGroup(objectListPanelLayout.createParallelGroup(
+				GroupLayout.Alignment.LEADING).addGap(0, 103, Short.MAX_VALUE));
+		objectListPanelLayout.setVerticalGroup(objectListPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addGap(0, 320, Short.MAX_VALUE));
 
 		roomNameField.setText(room.getRoom().getName());
 
@@ -281,12 +262,8 @@ public class RoomDialogue extends JPanel {
 										.addContainerGap()
 										.addGroup(
 												leftPanelLayout
-														.createParallelGroup(
-																GroupLayout.Alignment.LEADING)
-														.addComponent(
-																objectListLabel,
-																GroupLayout.DEFAULT_SIZE,
-																161,
+														.createParallelGroup(GroupLayout.Alignment.LEADING)
+														.addComponent(objectListLabel, GroupLayout.DEFAULT_SIZE, 161,
 																Short.MAX_VALUE)
 														.addGroup(
 																leftPanelLayout
@@ -334,50 +311,30 @@ public class RoomDialogue extends JPanel {
 																								GroupLayout.PREFERRED_SIZE,
 																								GroupLayout.DEFAULT_SIZE,
 																								GroupLayout.PREFERRED_SIZE))
-																		.addGap(0,
-																				0,
-																				Short.MAX_VALUE)))
+																		.addGap(0, 0, Short.MAX_VALUE)))
 										.addContainerGap()));
-		leftPanelLayout
-				.setVerticalGroup(leftPanelLayout
-						.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(
-								leftPanelLayout
-										.createSequentialGroup()
-										.addGap(6, 6, 6)
-										.addComponent(roomNameField,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE)
-										.addComponent(changeColorButton,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.UNRELATED)
-										.addComponent(entranceTextButton)
-										.addGap(4, 4, 4)
-										.addComponent(alternativeInputsButton)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(createObjectButton)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(importObjectButton)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(objectListLabel,
-												GroupLayout.PREFERRED_SIZE, 25,
-												GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.RELATED,
-												GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE)
-										.addComponent(objectListPanel,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE)
-										.addContainerGap()));
+		leftPanelLayout.setVerticalGroup(leftPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
+				leftPanelLayout
+						.createSequentialGroup()
+						.addGap(6, 6, 6)
+						.addComponent(roomNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addComponent(changeColorButton, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+						.addComponent(entranceTextButton)
+						.addGap(4, 4, 4)
+						.addComponent(alternativeInputsButton)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(createObjectButton)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(importObjectButton)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(objectListLabel, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE,
+								Short.MAX_VALUE)
+						.addComponent(objectListPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE).addContainerGap()));
 
 		jSplitPane.setLeftComponent(leftPanel);
 
@@ -391,24 +348,18 @@ public class RoomDialogue extends JPanel {
 
 		GroupLayout enterScriptPanelLayout = new GroupLayout(enterScriptPanel);
 		enterScriptPanel.setLayout(enterScriptPanelLayout);
-		enterScriptPanelLayout.setHorizontalGroup(enterScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING)
-				.addGroup(
-						enterScriptPanelLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.addComponent(scriptsLabelEnter)
-								.addContainerGap(GroupLayout.DEFAULT_SIZE,
-										Short.MAX_VALUE))
-				.addComponent(jScrollPane1));
-		enterScriptPanelLayout.setVerticalGroup(enterScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-						enterScriptPanelLayout
-								.createSequentialGroup()
-								.addComponent(scriptsLabelEnter)
-								.addPreferredGap(
-										LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jScrollPane1)));
+		enterScriptPanelLayout
+				.setHorizontalGroup(enterScriptPanelLayout
+						.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(
+								enterScriptPanelLayout.createSequentialGroup().addContainerGap()
+										.addComponent(scriptsLabelEnter)
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+						.addComponent(jScrollPane1));
+		enterScriptPanelLayout.setVerticalGroup(enterScriptPanelLayout.createParallelGroup(
+				GroupLayout.Alignment.LEADING).addGroup(
+				enterScriptPanelLayout.createSequentialGroup().addComponent(scriptsLabelEnter)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane1)));
 
 		jTabbedPane.addTab("Enter", enterScriptPanel);
 
@@ -420,24 +371,18 @@ public class RoomDialogue extends JPanel {
 
 		GroupLayout exitScriptPanelLayout = new GroupLayout(exitScriptPanel);
 		exitScriptPanel.setLayout(exitScriptPanelLayout);
-		exitScriptPanelLayout.setHorizontalGroup(exitScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING)
+		exitScriptPanelLayout
+				.setHorizontalGroup(exitScriptPanelLayout
+						.createParallelGroup(GroupLayout.Alignment.LEADING)
+						.addGroup(
+								exitScriptPanelLayout.createSequentialGroup().addContainerGap()
+										.addComponent(scriptsLabelExit)
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+						.addComponent(jScrollPane5));
+		exitScriptPanelLayout.setVerticalGroup(exitScriptPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
 				.addGroup(
-						exitScriptPanelLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.addComponent(scriptsLabelExit)
-								.addContainerGap(GroupLayout.DEFAULT_SIZE,
-										Short.MAX_VALUE))
-				.addComponent(jScrollPane5));
-		exitScriptPanelLayout.setVerticalGroup(exitScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-						exitScriptPanelLayout
-								.createSequentialGroup()
-								.addComponent(scriptsLabelExit)
-								.addPreferredGap(
-										LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jScrollPane5)));
+						exitScriptPanelLayout.createSequentialGroup().addComponent(scriptsLabelExit)
+								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane5)));
 
 		jTabbedPane.addTab("Exit", exitScriptPanel);
 
@@ -447,31 +392,20 @@ public class RoomDialogue extends JPanel {
 
 		scriptsLabelEnterFirst.setText("Scripts");
 
-		GroupLayout enterFirstScriptPanelLayout = new GroupLayout(
-				enterFirstScriptPanel);
+		GroupLayout enterFirstScriptPanelLayout = new GroupLayout(enterFirstScriptPanel);
 		enterFirstScriptPanel.setLayout(enterFirstScriptPanelLayout);
 		enterFirstScriptPanelLayout
 				.setHorizontalGroup(enterFirstScriptPanelLayout
 						.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(
-								enterFirstScriptPanelLayout
-										.createSequentialGroup()
-										.addContainerGap()
+								enterFirstScriptPanelLayout.createSequentialGroup().addContainerGap()
 										.addComponent(scriptsLabelEnterFirst)
-										.addContainerGap(
-												GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE))
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 						.addComponent(jScrollPane4));
-		enterFirstScriptPanelLayout
-				.setVerticalGroup(enterFirstScriptPanelLayout
-						.createParallelGroup(GroupLayout.Alignment.LEADING)
-						.addGroup(
-								enterFirstScriptPanelLayout
-										.createSequentialGroup()
-										.addComponent(scriptsLabelEnterFirst)
-										.addPreferredGap(
-												LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(jScrollPane4)));
+		enterFirstScriptPanelLayout.setVerticalGroup(enterFirstScriptPanelLayout.createParallelGroup(
+				GroupLayout.Alignment.LEADING).addGroup(
+				enterFirstScriptPanelLayout.createSequentialGroup().addComponent(scriptsLabelEnterFirst)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane4)));
 
 		jTabbedPane.addTab("Enter First", enterFirstScriptPanel);
 
@@ -481,29 +415,20 @@ public class RoomDialogue extends JPanel {
 
 		scriptsLabelExitFirst.setText("Scripts");
 
-		GroupLayout exitFirstScriptPanelLayout = new GroupLayout(
-				exitFirstScriptPanel);
+		GroupLayout exitFirstScriptPanelLayout = new GroupLayout(exitFirstScriptPanel);
 		exitFirstScriptPanel.setLayout(exitFirstScriptPanelLayout);
 		exitFirstScriptPanelLayout
 				.setHorizontalGroup(exitFirstScriptPanelLayout
 						.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(
-								exitFirstScriptPanelLayout
-										.createSequentialGroup()
-										.addContainerGap()
+								exitFirstScriptPanelLayout.createSequentialGroup().addContainerGap()
 										.addComponent(scriptsLabelExitFirst)
-										.addContainerGap(
-												GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE))
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 						.addComponent(jScrollPane3));
-		exitFirstScriptPanelLayout.setVerticalGroup(exitFirstScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-						exitFirstScriptPanelLayout
-								.createSequentialGroup()
-								.addComponent(scriptsLabelExitFirst)
-								.addPreferredGap(
-										LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jScrollPane3)));
+		exitFirstScriptPanelLayout.setVerticalGroup(exitFirstScriptPanelLayout.createParallelGroup(
+				GroupLayout.Alignment.LEADING).addGroup(
+				exitFirstScriptPanelLayout.createSequentialGroup().addComponent(scriptsLabelExitFirst)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane3)));
 
 		jTabbedPane.addTab("Exit First", exitFirstScriptPanel);
 
@@ -513,98 +438,88 @@ public class RoomDialogue extends JPanel {
 
 		scriptsLabelEveryTurn.setText("Scripts");
 
-		GroupLayout everyTurnScriptPanelLayout = new GroupLayout(
-				everyTurnScriptPanel);
+		GroupLayout everyTurnScriptPanelLayout = new GroupLayout(everyTurnScriptPanel);
 		everyTurnScriptPanel.setLayout(everyTurnScriptPanelLayout);
 		everyTurnScriptPanelLayout
 				.setHorizontalGroup(everyTurnScriptPanelLayout
 						.createParallelGroup(GroupLayout.Alignment.LEADING)
 						.addGroup(
-								everyTurnScriptPanelLayout
-										.createSequentialGroup()
-										.addContainerGap()
+								everyTurnScriptPanelLayout.createSequentialGroup().addContainerGap()
 										.addComponent(scriptsLabelEveryTurn)
-										.addContainerGap(
-												GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE))
+										.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 						.addComponent(jScrollPane2));
-		everyTurnScriptPanelLayout.setVerticalGroup(everyTurnScriptPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
-						everyTurnScriptPanelLayout
-								.createSequentialGroup()
-								.addComponent(scriptsLabelEveryTurn)
-								.addPreferredGap(
-										LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jScrollPane2)));
+		everyTurnScriptPanelLayout.setVerticalGroup(everyTurnScriptPanelLayout.createParallelGroup(
+				GroupLayout.Alignment.LEADING).addGroup(
+				everyTurnScriptPanelLayout.createSequentialGroup().addComponent(scriptsLabelEveryTurn)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(jScrollPane2)));
 
 		jTabbedPane.addTab("Every Turn", everyTurnScriptPanel);
 
 		GroupLayout rightPanelLayout = new GroupLayout(rightPanel);
 		rightPanel.setLayout(rightPanelLayout);
-		rightPanelLayout.setHorizontalGroup(rightPanelLayout
-				.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
+		rightPanelLayout.setHorizontalGroup(rightPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addGroup(
 						rightPanelLayout
 								.createSequentialGroup()
-								.addComponent(jTabbedPane,
-										GroupLayout.PREFERRED_SIZE,
-										GroupLayout.DEFAULT_SIZE,
-										GroupLayout.PREFERRED_SIZE)
-								.addGap(0, 0, Short.MAX_VALUE)));
-		rightPanelLayout.setVerticalGroup(rightPanelLayout.createParallelGroup(
-				GroupLayout.Alignment.LEADING).addComponent(jTabbedPane,
-				GroupLayout.Alignment.TRAILING));
+								.addComponent(jTabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+										GroupLayout.PREFERRED_SIZE).addGap(0, 0, Short.MAX_VALUE)));
+		rightPanelLayout.setVerticalGroup(rightPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+				.addComponent(jTabbedPane, GroupLayout.Alignment.TRAILING));
 		jSplitPane.setRightComponent(rightPanel);
 		jSplitPane.setOpaque(true);
 		GroupLayout layout = new GroupLayout(main);
 		main.setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(
-				GroupLayout.Alignment.LEADING).addGroup(
+		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(
 				layout.createSequentialGroup()
-						.addComponent(jSplitPane, GroupLayout.PREFERRED_SIZE,
-								558, GroupLayout.PREFERRED_SIZE)
+						.addComponent(jSplitPane, GroupLayout.PREFERRED_SIZE, 558, GroupLayout.PREFERRED_SIZE)
 						.addGap(0, 0, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(
-				GroupLayout.Alignment.LEADING).addComponent(jSplitPane));
+		layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(jSplitPane));
 		setAllComponentsColor(room.getRoom().getBackgroundColor());
-		
+
 		return main;
 	}// </editor-fold>
 
-	private Color getColorDialogue(ColorDialogueType type, Color defaultColor) {
+	private void openColorDialogue(ColorDialogueType type, final MapRoom room) {
 		final String ALLOWED_PANEL = type.name;
 
-		JColorChooser chooser = new JColorChooser(defaultColor);
+		Color defaultColor = room.getRoom().getBackgroundColor();
+
+		final JColorChooser chooser = new JColorChooser(defaultColor);
+		chooser.getSelectionModel().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				room.getRoom().setBackgroundColor(chooser.getColor());
+				setAllComponentsColor(room.getRoom().getBackgroundColor());
+			}
+		});
 		AbstractColorChooserPanel[] panels = chooser.getChooserPanels();
 		for (AbstractColorChooserPanel accp : panels) {
 			if (accp.getDisplayName().equals(ALLOWED_PANEL)) {
 				JOptionPane.showMessageDialog(null, accp);
 			}
 		}
-		Color colorVal = chooser.getColor();
-		if (colorVal == null) {
-			return defaultColor;
+
+		if (chooser.getColor() == null) {
+			room.getRoom().setBackgroundColor(defaultColor);
+			setAllComponentsColor(room.getRoom().getBackgroundColor());
 		}
-		return colorVal;
 	}
-	enum ColorDialogueType{
-		Swatches("Swatches"),
-		HSV("HSV"),
-		HSL("HSL"),
-		RGB("RGB"),
-		CMYK("CMYK");
-		
+
+	private enum ColorDialogueType {
+		Swatches("Swatches"), HSV("HSV"), HSL("HSL"), RGB("RGB"), CMYK("CMYK");
+
 		public final String name;
-		private ColorDialogueType(String name){
+
+		private ColorDialogueType(String name) {
 			this.name = name;
 		}
 	}
-	private void entranceTextButtonActionPerformed(
-			java.awt.event.ActionEvent evt) {
+
+	private void entranceTextButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 	}
 
-	private void importObjectButtonActionPerformed(
-			java.awt.event.ActionEvent evt) {
+	private void importObjectButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 	}
 

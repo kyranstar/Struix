@@ -36,31 +36,26 @@ public class MapRoom {
 
 	private GameRoom room;
 
+	private boolean hasRoomDialogueOpen;
 	private boolean selected = false;
 
 	public MapRoom(MapComponent parent, Color background, Point position) {
 		room = parent.getRoomBuilder().createRoom("", background);
 
 		this.parent = parent;
-		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
-				DEFAULT_HEIGHT);
+		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	}
 
 	public MapRoom(MapComponent parent, Point position) {
 		this.parent = parent;
-		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH,
-				DEFAULT_HEIGHT);
+		bounds = new Rectangle(position.x, position.y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		Color color;
 
 		if (ColorPaletteConstants.ROOM_RANDOM_COLOR) {
-			color = ColorUtils
-					.mapBrightness(
-							ColorUtils
-									.mapSaturation(
-											ColorUtils
-													.generateRandomColor(ColorPaletteConstants.ROOM_DEFAULT_COLOR),
-											ColorPaletteConstants.ROOM_DEFAULT_COLOR_SATURATION),
-							ColorPaletteConstants.ROOM_DEFAULT_COLOR_BRIGHTNESS);
+			color = ColorUtils.mapBrightness(ColorUtils.mapSaturation(
+					ColorUtils.generateRandomColor(ColorPaletteConstants.ROOM_DEFAULT_COLOR),
+					ColorPaletteConstants.ROOM_DEFAULT_COLOR_SATURATION),
+					ColorPaletteConstants.ROOM_DEFAULT_COLOR_BRIGHTNESS);
 		} else {
 			color = ColorPaletteConstants.ROOM_DEFAULT_COLOR;
 		}
@@ -101,17 +96,14 @@ public class MapRoom {
 	}
 
 	public void stickToMouse() {
-		if (!parent.getStuckToMouse().isPresent())
-			parent.setStuckToMouse(Optional.of(this));
+		if (!parent.getStuckToMouse().isPresent()) parent.setStuckToMouse(Optional.of(this));
 	}
 
 	public void unstickToMouse() {
-		if (!parent.getStuckToMouse().isPresent())
-			throw new AlreadyExistsException(
-					"Mouse doesnt have a room stuck to it!");
-		if (parent.getStuckToMouse().get() != this) {
-			throw new AlreadyExistsException("Room stuck to mouse is not this");
-		}
+		if (!parent.getStuckToMouse().isPresent()) throw new AlreadyExistsException(
+				"Mouse doesnt have a room stuck to it!");
+		if (parent.getStuckToMouse().get() != this) { throw new AlreadyExistsException(
+				"Room stuck to mouse is not this"); }
 
 		parent.setStuckToMouse(Optional.absent());
 		snapToGrid();
@@ -133,13 +125,11 @@ public class MapRoom {
 			double x = bounds.getX() + amountInward;
 			double y = bounds.getY() + amountInward;
 			drawSelection((Graphics2D) g,
-					new Rectangle2D.Double(x, y, bounds.getWidth()
-							- amountInward * 2, bounds.getHeight()
+					new Rectangle2D.Double(x, y, bounds.getWidth() - amountInward * 2, bounds.getHeight()
 							- amountInward * 2), 30);
 		}
 		g.setColor(room.getBackgroundColor());
-		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height,
-				CORNER_ROUNDNESS, CORNER_ROUNDNESS);
+		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, CORNER_ROUNDNESS, CORNER_ROUNDNESS);
 
 		for (Optional<MapHallway> hallway : room.getHallways()) {
 			if (hallway.isPresent()) {
@@ -149,8 +139,7 @@ public class MapRoom {
 	}
 
 	private void drawSelection(Graphics2D g, Rectangle2D r, double s) {
-		Color c0 = ColorUtils.mapBrightness(getRoom().getBackgroundColor(),
-				0.9f);
+		Color c0 = ColorUtils.mapBrightness(getRoom().getBackgroundColor(), 0.9f);
 		Color c1 = new Color(0, 0, 0, 0);
 
 		double x0 = r.getMinX();
@@ -161,46 +150,42 @@ public class MapRoom {
 		double h = r.getHeight();
 
 		// Left
-		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0,
-				new Point2D.Double(x0 - s, y0), c1));
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0, new Point2D.Double(x0 - s, y0), c1));
 		g.fill(new Rectangle2D.Double(x0 - s, y0, s, h));
 
 		// Right
-		g.setPaint(new GradientPaint(new Point2D.Double(x1, y0), c0,
-				new Point2D.Double(x1 + s, y0), c1));
+		g.setPaint(new GradientPaint(new Point2D.Double(x1, y0), c0, new Point2D.Double(x1 + s, y0), c1));
 		g.fill(new Rectangle2D.Double(x1, y0, s, h));
 
 		// Top
-		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0,
-				new Point2D.Double(x0, y0 - s), c1));
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0, new Point2D.Double(x0, y0 - s), c1));
 		g.fill(new Rectangle2D.Double(x0, y0 - s, w, s));
 
 		// Bottom
-		g.setPaint(new GradientPaint(new Point2D.Double(x0, y1), c0,
-				new Point2D.Double(x0, y1 + s), c1));
+		g.setPaint(new GradientPaint(new Point2D.Double(x0, y1), c0, new Point2D.Double(x0, y1 + s), c1));
 		g.fill(new Rectangle2D.Double(x0, y1, w, s));
 
 		float fractions[] = new float[] { 0.0f, 1.0f };
 		Color colors[] = new Color[] { c0, c1 };
 
 		// Top Left
-		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y0
-				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y0 - s, s + s, s + s), fractions, colors,
+				CycleMethod.NO_CYCLE));
 		g.fill(new Rectangle2D.Double(x0 - s, y0 - s, s, s));
 
 		// Top Right
-		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y0
-				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y0 - s, s + s, s + s), fractions, colors,
+				CycleMethod.NO_CYCLE));
 		g.fill(new Rectangle2D.Double(x1, y0 - s, s, s));
 
 		// Bottom Left
-		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y1
-				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y1 - s, s + s, s + s), fractions, colors,
+				CycleMethod.NO_CYCLE));
 		g.fill(new Rectangle2D.Double(x0 - s, y1, s, s));
 
 		// Bottom Right
-		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y1
-				- s, s + s, s + s), fractions, colors, CycleMethod.NO_CYCLE));
+		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x1 - s, y1 - s, s + s, s + s), fractions, colors,
+				CycleMethod.NO_CYCLE));
 		g.fill(new Rectangle2D.Double(x1, y1, s, s));
 	}
 
@@ -221,13 +206,9 @@ public class MapRoom {
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		if (!getPressedPoint().isPresent()) {
-			return;
-		}
-		setX((int) Math.round(bounds.x
-				- (getPressedPoint().get().x - e.getPoint().x) / parent.getScale()));
-		setY((int) Math.round(bounds.y
-				- (getPressedPoint().get().y - e.getPoint().y) / parent.getScale()));
+		if (!getPressedPoint().isPresent()) { return; }
+		setX((int) Math.round(bounds.x - (getPressedPoint().get().x - e.getPoint().x)));
+		setY((int) Math.round(bounds.y - (getPressedPoint().get().y - e.getPoint().y)));
 		setPressedPoint(Optional.of(e.getPoint()));
 		parent.repaint();
 	}
@@ -236,14 +217,12 @@ public class MapRoom {
 		if (bounds.x % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
 			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE));
 		} else {
-			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE)
-					+ MapComponent.GRID_SIZE);
+			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE) + MapComponent.GRID_SIZE);
 		}
 		if (bounds.y % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
 			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE));
 		} else {
-			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE)
-					+ MapComponent.GRID_SIZE);
+			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE) + MapComponent.GRID_SIZE);
 		}
 	}
 
@@ -253,6 +232,14 @@ public class MapRoom {
 
 	private void setPressedPoint(Optional<Point> optional) {
 		this.pressedPoint = optional;
+	}
+
+	public boolean hasRoomDialogueOpen() {
+		return hasRoomDialogueOpen;
+	}
+
+	public void setHasRoomDialogueOpen(boolean hasWindowOpen) {
+		this.hasRoomDialogueOpen = hasWindowOpen;
 	}
 
 }

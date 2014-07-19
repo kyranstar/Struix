@@ -34,8 +34,6 @@ public class MapComponent extends JPanel {
 	public static final int GRID_SIZE = 60;
 	private static final int SPACING_SIZE = 10;
 
-	private double scale = 1.0;
-
 	private int currentX;
 	private int currentY;
 
@@ -44,8 +42,6 @@ public class MapComponent extends JPanel {
 	private Optional<MapRoom> stuckToMouse = Optional.absent();
 
 	private Tool currentTool = Tool.DRAG_ROOM;
-
-	private final MouseWheelListener mouseWheelListener = new MapMouseWheelListener(this);
 	private final MapMouseListener mouseListener = new MapMouseListener(this);
 
 	private final WordSet wordSet = new WordSet();
@@ -68,7 +64,6 @@ public class MapComponent extends JPanel {
 		this.setBackground(ColorPaletteConstants.MAP_BACKGROUND);
 		this.addMouseMotionListener(mouseListener);
 		this.addMouseListener(mouseListener);
-		this.addMouseWheelListener(mouseWheelListener);
 		this.setOpaque(false);
 
 		setLayout(new BorderLayout());
@@ -89,6 +84,11 @@ public class MapComponent extends JPanel {
 
 	public void setCurrentTool(Tool currentTool) {
 		this.currentTool = currentTool;
+		if(currentTool != Tool.CREATE_HALLWAY){
+			mouseListener.hallwayToMouse = Optional.absent();
+			mouseListener.pressedRoom = Optional.absent();
+			mouseListener.pressedHallwayIndex = Optional.absent();
+		}
 	}
 
 	public Tool getCurrentTool() {
@@ -106,10 +106,6 @@ public class MapComponent extends JPanel {
 		return mapRoom;
 	}
 
-	public double getScale() {
-		return scale;
-	}
-
 	@Override
 	public void paintComponent(Graphics graphics) {
 		Graphics2D g = (Graphics2D) graphics;
@@ -120,12 +116,10 @@ public class MapComponent extends JPanel {
 
 		g.setColor(getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
-
-		g.scale(scale, scale);
 		g.setColor(ColorPaletteConstants.MAP_ROOM_HOLDER);
 		g.setStroke(new BasicStroke(2));
-		for (int x = -(currentX % GRID_SIZE) - GRID_SIZE; x < getWidth() / scale; x += GRID_SIZE) {
-			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight() / scale; y += GRID_SIZE) {
+		for (int x = -(currentX % GRID_SIZE) - GRID_SIZE; x < getWidth(); x += GRID_SIZE) {
+			for (int y = -(currentY % GRID_SIZE) - GRID_SIZE; y < getHeight(); y += GRID_SIZE) {
 				g.drawRoundRect(x, y, GRID_SIZE - SPACING_SIZE, GRID_SIZE - SPACING_SIZE, MapRoom.CORNER_ROUNDNESS,
 						MapRoom.CORNER_ROUNDNESS);
 			}
@@ -142,16 +136,11 @@ public class MapComponent extends JPanel {
 			g.draw(mouseListener.hallwayToMouse.get());
 		}
 		g.translate(currentX, currentY);
-		g.scale(1 / scale, 1 / scale);
 
 		g.setColor(Color.GREEN);
 		g.drawString("X: " + currentX + " Y: " + currentY, 10, 20);
 
 		super.paintComponent(g);
-	}
-
-	public void setScale(double scale) {
-		this.scale = scale;
 	}
 
 	public int getCurrentX() {

@@ -17,6 +17,8 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 
 import ui.windows.BackgroundUI;
 import ui.windows.map.MapComponentsHolder;
@@ -24,6 +26,7 @@ import ui.windows.map.MapRoom;
 import ui.windows.map.WorldSelectorPanel;
 import ui.windows.map.main.MapComponent;
 import ui.windows.map.main.MapComponent.Tool;
+import ui.windows.room.RoomDialogue;
 
 public class CreatorUI extends JFrame {
 
@@ -40,10 +43,8 @@ public class CreatorUI extends JFrame {
 		ActionListener dragToolListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.DRAG_ROOM) {
-					worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.DRAG_ROOM);
-					worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
-				}
+				worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.DRAG_ROOM);
+				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
 			}
 		};
 
@@ -56,10 +57,8 @@ public class CreatorUI extends JFrame {
 					worldSelectorPanel
 							.getCurrentWorld()
 							.createRoomAtPoint(
-									(int) (worldSelectorPanel.getCurrentWorld().getCurrentX()
-											* worldSelectorPanel.getCurrentWorld().getScale() - MapRoom.DEFAULT_WIDTH - 1000),
-									(int) (worldSelectorPanel.getCurrentWorld().getCurrentY()
-											* worldSelectorPanel.getCurrentWorld().getScale() - MapRoom.DEFAULT_HEIGHT - 1000))
+									(int) (worldSelectorPanel.getCurrentWorld().getCurrentX() - MapRoom.DEFAULT_WIDTH - 1000),
+									(int) (worldSelectorPanel.getCurrentWorld().getCurrentY() - MapRoom.DEFAULT_HEIGHT - 1000))
 							.stickToMouse();
 				}
 			}
@@ -186,7 +185,7 @@ public class CreatorUI extends JFrame {
 
 	}
 
-	public void addWindow(JPanel window, Dimension size, Point location, String title) {
+	public void addWindow(RoomDialogue window, final MapRoom room, Dimension size, Point location, String title) {
 		// For some reason, without this for loop, the room opens up in full
 		// screen?
 		for (int i = 0; i < 2; i++) {
@@ -195,6 +194,38 @@ public class CreatorUI extends JFrame {
 				internalFrame.getContentPane().add(window);// ????????????????????????
 				internalFrame.setSize(size);
 				internalFrame.setLocation(location);
+				internalFrame.addInternalFrameListener(new InternalFrameListener() {
+
+					@Override
+					public void internalFrameActivated(InternalFrameEvent e) {
+					}
+
+					@Override
+					public void internalFrameClosed(InternalFrameEvent e) {
+						room.setHasRoomDialogueOpen(false);
+					}
+
+					@Override
+					public void internalFrameClosing(InternalFrameEvent e) {
+					}
+
+					@Override
+					public void internalFrameDeactivated(InternalFrameEvent e) {
+					}
+
+					@Override
+					public void internalFrameDeiconified(InternalFrameEvent e) {
+					}
+
+					@Override
+					public void internalFrameIconified(InternalFrameEvent e) {
+					}
+
+					@Override
+					public void internalFrameOpened(InternalFrameEvent e) {
+					}
+
+				});
 			}
 			desktop.add(internalFrame);
 			desktop.setLayer(internalFrame, JLayeredPane.DRAG_LAYER);

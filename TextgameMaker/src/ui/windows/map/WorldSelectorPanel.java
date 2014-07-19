@@ -10,6 +10,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import ui.ColorPaletteConstants;
@@ -89,25 +90,27 @@ public class WorldSelectorPanel extends JPanel implements MouseListener, MouseMo
 		return mapPanels.get(currentMapPanel);
 	}
 
-	private void changeToPanel(int id) {
-		currentMapPanel = id;
-		componentsHolder.changePanel(id);
+	private void changeToPanel(int index) {
+		currentMapPanel = index;
+		componentsHolder.changePanel(index);
 	}
 
 	public void deleteCurrentWorld() {
 		if (mapPanels.size() <= 1) return;
+		int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete the current world?");
+		if (result == JOptionPane.OK_OPTION) {
 
-		int currentId = currentMapPanel;
-		int switchTo;
+			int currentId = currentMapPanel;
+			mapPanels.remove(currentId);
+			if (currentId >= mapPanels.size()) {
+				changeToPanel(currentId - 1);
+			} else {
+				changeToPanel(currentId);
+			}
+			componentsHolder.removeComponent(currentId);
 
-		if (currentId == 0) switchTo = currentId + 1;
-		else switchTo = currentId - 1;
-
-		changeToPanel(switchTo);
-		mapPanels.remove(currentId);
-		componentsHolder.removeComponent(currentId);
-
-		repaint();
+			repaint();
+		}
 	}
 
 	private Optional<Double> pressedY = Optional.absent();
