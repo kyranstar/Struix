@@ -33,37 +33,38 @@ public class CreatorUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private Container backgroundPane;
-	private JDesktopPane desktop = new JDesktopPane();
+	private final JDesktopPane desktop = new JDesktopPane();
 
 	private WorldSelectorPanel worldSelectorPanel;
 
 	public CreatorUI() {
 		super("Struix");
 
-		ActionListener dragToolListener = new ActionListener() {
+		final ActionListener dragToolListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("SUPEr");
 				worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.DRAG_ROOM);
 				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
 			}
 		};
 
-		ActionListener createRoomListener = new ActionListener() {
+		final ActionListener createRoomListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.CREATE_ROOM) {
 					worldSelectorPanel.getCurrentWorld().setCurrentTool(Tool.CREATE_ROOM);
 					// 1000 extra just to be safe
 					worldSelectorPanel
-							.getCurrentWorld()
-							.createRoomAtPoint(
-									(int) (worldSelectorPanel.getCurrentWorld().getCurrentX() - MapRoom.DEFAULT_WIDTH - 1000),
-									(int) (worldSelectorPanel.getCurrentWorld().getCurrentY() - MapRoom.DEFAULT_HEIGHT - 1000))
+					.getCurrentWorld()
+					.createRoomAtPoint(
+							worldSelectorPanel.getCurrentWorld().getCurrentX() - MapRoom.DEFAULT_WIDTH - 1000,
+							worldSelectorPanel.getCurrentWorld().getCurrentY() - MapRoom.DEFAULT_HEIGHT - 1000)
 							.stickToMouse();
 				}
 			}
 		};
-		ActionListener createHallwayListener = new ActionListener() {
+		final ActionListener createHallwayListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (worldSelectorPanel.getCurrentWorld().getCurrentTool() != Tool.CREATE_HALLWAY) {
@@ -73,62 +74,66 @@ public class CreatorUI extends JFrame {
 				}
 			}
 		};
-		ActionListener createWorldListener = new ActionListener() {
+		final ActionListener createWorldListener = new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
-				String name = JOptionPane.showInputDialog("World Name: ");
+				final String name = JOptionPane.showInputDialog("World Name: ");
 				if (name == null) { return; }
 				worldSelectorPanel.addMapComponent(new MapComponent(name, CreatorUI.this));
 			}
 
 		};
-		ActionListener createPortalListener = new ActionListener() {
+		final ActionListener createPortalListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worldSelectorPanel.getCurrentWorld().deleteStuckToMouse();
 			}
 		};
 
-		ActionListener deleteWorldListener = new ActionListener() {
+		final ActionListener deleteWorldListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worldSelectorPanel.deleteCurrentWorld();
 			}
 		};
-		ActionListener createEntityListener = new ActionListener() {
+		final ActionListener createEntityListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
 			}
 		};
-		ActionListener deleteEntityListener = new ActionListener() {
+		final ActionListener deleteEntityListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
 			}
 		};
 		desktop.addComponentListener(new ComponentListener() {
+			@Override
 			public void componentHidden(ComponentEvent e) {
 			}
 
+			@Override
 			public void componentMoved(ComponentEvent e) {
 			}
 
+			@Override
 			public void componentShown(ComponentEvent e) {
 			}
 
+			@Override
 			public void componentResized(ComponentEvent e) {
 				backgroundPane.setSize(getSize());
 			}
 		});
 
-		MapComponentsHolder mapPanel = new MapComponentsHolder();
+		final MapComponentsHolder mapPanel = new MapComponentsHolder();
 
 		worldSelectorPanel = new WorldSelectorPanel(mapPanel);
 		worldSelectorPanel.addMapComponent(new MapComponent("Default World", this));
-		JPanel entityListPanel = new JPanel();
+		final JPanel entityListPanel = new JPanel();
 		entityListPanel.setBackground(new Color(0, 100, 255, 100));
 
 		backgroundPane = new BackgroundUI().initComponents(dragToolListener, createRoomListener, createHallwayListener,
@@ -149,22 +154,22 @@ public class CreatorUI extends JFrame {
 
 	private static void setPLAF(String name) {
 		try {
-			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+			for (final javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
 				if (name.equals(info.getName())) {
 					javax.swing.UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
 			}
-		} catch (ClassNotFoundException ex) {
+		} catch (final ClassNotFoundException ex) {
 			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
 					ex);
-		} catch (InstantiationException ex) {
+		} catch (final InstantiationException ex) {
 			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
 					ex);
-		} catch (IllegalAccessException ex) {
+		} catch (final IllegalAccessException ex) {
 			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
 					ex);
-		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+		} catch (final javax.swing.UnsupportedLookAndFeelException ex) {
 			java.util.logging.Logger.getLogger(BackgroundUI.class.getName()).log(java.util.logging.Level.SEVERE, null,
 					ex);
 		}
@@ -176,7 +181,7 @@ public class CreatorUI extends JFrame {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				CreatorUI frame = new CreatorUI();
+				final CreatorUI frame = new CreatorUI();
 				frame.pack();
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setVisible(true);
@@ -189,7 +194,7 @@ public class CreatorUI extends JFrame {
 		// For some reason, without this for loop, the room opens up in full
 		// screen?
 		for (int i = 0; i < 2; i++) {
-			JInternalFrame internalFrame = new JInternalFrame(title, false, true, false, false);
+			final JInternalFrame internalFrame = new JInternalFrame(title, false, true, false, false);
 			if (i == 0) {
 				internalFrame.getContentPane().add(window);// ????????????????????????
 				internalFrame.setSize(size);

@@ -1,0 +1,33 @@
+package lang.exceptions;
+
+public class TLValueInstantiationException extends InterpreterException{
+
+	private static final long serialVersionUID = 1L;
+
+	public TLValueInstantiationException() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public TLValueInstantiationException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		// TODO Auto-generated constructor stub
+	}
+
+	public TLValueInstantiationException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	public TLValueInstantiationException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+
+	public TLValueInstantiationException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
+
+}

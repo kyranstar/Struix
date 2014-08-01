@@ -1,0 +1,18 @@
+i is 0;
+while i < 5 then
+	println(i);
+	i is i + 1;
+end
+
+while i > -5 then
+	println(i);
+	i is i - 1;
+end
+
+b is -10;
+c is 0;
+while b < 0 do 
+  c is c + b;
+  b is b + 1;
+end
+assert(c equals -(1+2+3+4+5+6+7+8+9+10));

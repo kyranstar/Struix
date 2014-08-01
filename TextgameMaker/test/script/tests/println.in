@@ -1,0 +1,9 @@
+println(5);
+println("Hey");
+println(true);
+println(null);
+
+print(5);
+print("Hey");
+print(true);
+print(null);

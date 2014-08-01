@@ -1,0 +1,18 @@
+println(!true);
+println(not false);
+
+println(true and true); 
+println(true and false);
+println(false && true);
+println(false && false);
+
+println(true or false);
+println(true or true);
+println(false || true);
+println(false || false);
+
+assert(true || false);
+assert(!false);
+assert(true && true);
+assert(!true || !false);
+assert(true && (true || false));

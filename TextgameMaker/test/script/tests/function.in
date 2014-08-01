@@ -1,0 +1,44 @@
+def twicePlusOne(n)
+  return (n * 2) + 1;
+end 
+
+def times3(a)
+  return a * 3;
+end
+
+def printFunc()
+  println("sup");
+end
+
+def invert(input)
+  return not input;
+end
+
+def add(first, second)
+	return first + second;
+end
+
+println(twicePlusOne(5));
+printFunc();
+println(times3("Wow"));
+println(invert(true));
+println(add(3,6));
+
+// functions
+def twice(n)
+  temp is (n * 2); 
+  return temp; 
+end
+
+def squared(n) 
+  return n*n; 
+end
+
+def squaredAndTwice(n)
+  return twice(squared(n));
+end
+
+assert(squared(666) equals 666^2);
+assert(twice(squared(5)) equals 50);
+//assert(squaredAndTwice(10) equals 200);
+assert(squared(squared(squared(2))) equals 2^2^2^2);

@@ -4,7 +4,11 @@ import java.awt.Color;
 import java.util.Random;
 
 public final class ColorUtils {
+	
 	private static Random random = new Random();
+	
+	private ColorUtils(){}
+	
 	public static Color getRandomSimilarColor(Color c, int similarity){
 		float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
 		hsb[0] += random.nextFloat() * similarity;

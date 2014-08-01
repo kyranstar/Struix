@@ -1,0 +1,50 @@
+if true then
+	println("true is true");
+end
+if false then
+	println("false is true?");
+end
+
+if (1+1) > 3 then
+	println("I broke math");
+else if 3 > 2 then
+	println("duh");
+else then
+	println("get off my else statement");
+end
+
+if (3 < 6) then
+	println("math is fine");
+else if 3 > 6 then
+	println("broke maths again");
+end
+
+if false then
+	println("nope");
+else if false then
+	println("try again");
+else then
+	println("winner");
+end
+
+// if
+a is 123;
+if a > 200 do
+  assert(false);
+end
+
+if a < 100 do
+  assert(false);
+else if a > 124 do
+  assert(false);
+else if a < 124 do
+  assert(true);
+else do
+  assert(false);
+end
+
+if false do
+  assert(false);
+else do
+  assert(true);
+end

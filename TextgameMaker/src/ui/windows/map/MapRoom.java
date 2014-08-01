@@ -30,11 +30,11 @@ public class MapRoom {
 
 	public static final int EMPTY_HALLWAY_SIZE = 10;
 
-	private Rectangle bounds;
+	private final Rectangle bounds;
 
-	private MapComponent parent;
+	private final MapComponent parent;
 
-	private GameRoom room;
+	private final GameRoom room;
 
 	private boolean hasRoomDialogueOpen;
 	private boolean selected = false;
@@ -63,16 +63,16 @@ public class MapRoom {
 	}
 
 	public void setX(int x) {
-		this.bounds.x = x;
+		bounds.x = x;
 	}
 
 	public void setY(int y) {
-		this.bounds.y = y;
+		bounds.y = y;
 	}
 
 	public void setLocation(int x, int y) {
-		this.bounds.x = x;
-		this.bounds.y = y;
+		bounds.x = x;
+		bounds.y = y;
 	}
 
 	public GameRoom getRoom() {
@@ -80,11 +80,11 @@ public class MapRoom {
 	}
 
 	public void setHeight(int height) {
-		this.bounds.height = height;
+		bounds.height = height;
 	}
 
 	public void setWidth(int width) {
-		this.bounds.width = width;
+		bounds.width = width;
 	}
 
 	public boolean isSelected() {
@@ -96,17 +96,9 @@ public class MapRoom {
 	}
 
 	public void stickToMouse() {
-		if (!parent.getStuckToMouse().isPresent()) parent.setStuckToMouse(Optional.of(this));
-	}
-
-	public void unstickToMouse() {
-		if (!parent.getStuckToMouse().isPresent()) throw new AlreadyExistsException(
-				"Mouse doesnt have a room stuck to it!");
-		if (parent.getStuckToMouse().get() != this) { throw new AlreadyExistsException(
-				"Room stuck to mouse is not this"); }
-
-		parent.setStuckToMouse(Optional.absent());
-		snapToGrid();
+		if (!parent.getStuckToMouse().isPresent()) {
+			parent.setStuckToMouse(Optional.of(this));
+		}
 	}
 
 	public Rectangle getBounds() {
@@ -120,10 +112,10 @@ public class MapRoom {
 	public void draw(Graphics g) {
 		if (isSelected()) {
 			// this is to avoid little corner blanks
-			double amountInward = (bounds.getWidth() + bounds.getHeight()) / 10;
+			final double amountInward = (bounds.getWidth() + bounds.getHeight()) / 10;
 
-			double x = bounds.getX() + amountInward;
-			double y = bounds.getY() + amountInward;
+			final double x = bounds.getX() + amountInward;
+			final double y = bounds.getY() + amountInward;
 			drawSelection((Graphics2D) g,
 					new Rectangle2D.Double(x, y, bounds.getWidth() - amountInward * 2, bounds.getHeight()
 							- amountInward * 2), 30);
@@ -131,7 +123,7 @@ public class MapRoom {
 		g.setColor(room.getBackgroundColor());
 		g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, CORNER_ROUNDNESS, CORNER_ROUNDNESS);
 
-		for (Optional<MapHallway> hallway : room.getHallways()) {
+		for (final Optional<MapHallway> hallway : room.getHallways()) {
 			if (hallway.isPresent()) {
 				hallway.get().draw(g);
 			}
@@ -139,15 +131,15 @@ public class MapRoom {
 	}
 
 	private void drawSelection(Graphics2D g, Rectangle2D r, double s) {
-		Color c0 = ColorUtils.mapBrightness(getRoom().getBackgroundColor(), 0.9f);
-		Color c1 = new Color(0, 0, 0, 0);
+		final Color c0 = ColorUtils.mapBrightness(getRoom().getBackgroundColor(), 0.9f);
+		final Color c1 = new Color(0, 0, 0, 0);
 
-		double x0 = r.getMinX();
-		double y0 = r.getMinY();
-		double x1 = r.getMaxX();
-		double y1 = r.getMaxY();
-		double w = r.getWidth();
-		double h = r.getHeight();
+		final double x0 = r.getMinX();
+		final double y0 = r.getMinY();
+		final double x1 = r.getMaxX();
+		final double y1 = r.getMaxY();
+		final double w = r.getWidth();
+		final double h = r.getHeight();
 
 		// Left
 		g.setPaint(new GradientPaint(new Point2D.Double(x0, y0), c0, new Point2D.Double(x0 - s, y0), c1));
@@ -165,8 +157,8 @@ public class MapRoom {
 		g.setPaint(new GradientPaint(new Point2D.Double(x0, y1), c0, new Point2D.Double(x0, y1 + s), c1));
 		g.fill(new Rectangle2D.Double(x0, y1, w, s));
 
-		float fractions[] = new float[] { 0.0f, 1.0f };
-		Color colors[] = new Color[] { c0, c1 };
+		final float fractions[] = new float[] { 0.0f, 1.0f };
+		final Color colors[] = new Color[] { c0, c1 };
 
 		// Top Left
 		g.setPaint(new RadialGradientPaint(new Rectangle2D.Double(x0 - s, y0 - s, s + s, s + s), fractions, colors,
@@ -190,13 +182,13 @@ public class MapRoom {
 	}
 
 	public void drawEmptyHallways(Graphics2D g) {
-		g.translate(this.getBounds().x, this.getBounds().y);
+		g.translate(getBounds().x, getBounds().y);
 		g.setColor(MapHallway.EMPTY_CIRCLE_COLOR);
 		for (int index = 0; index < Direction.values().length; index++) {
-			Direction dir = HallwaySet.Direction.valueOf(index);
+			final Direction dir = HallwaySet.Direction.valueOf(index);
 			g.drawOval(dir.x, dir.y, EMPTY_HALLWAY_SIZE, EMPTY_HALLWAY_SIZE);
 		}
-		g.translate(-this.getBounds().x, -this.getBounds().y);
+		g.translate(-getBounds().x, -getBounds().y);
 	}
 
 	public Optional<Point> pressedPoint = Optional.absent();
@@ -207,22 +199,23 @@ public class MapRoom {
 
 	public void mouseDragged(MouseEvent e) {
 		if (!getPressedPoint().isPresent()) { return; }
-		setX((int) Math.round(bounds.x - (getPressedPoint().get().x - e.getPoint().x)));
-		setY((int) Math.round(bounds.y - (getPressedPoint().get().y - e.getPoint().y)));
+
+		setX((int) Math.round(bounds.getX() - getPressedPoint().get().getX() + e.getPoint().getX()));
+		setY((int) Math.round(bounds.getY() - getPressedPoint().get().getY() + e.getPoint().getY()));
 		setPressedPoint(Optional.of(e.getPoint()));
 		parent.repaint();
 	}
 
 	public void snapToGrid() {
 		if (bounds.x % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
-			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE));
+			setX(bounds.x - bounds.x % MapComponent.GRID_SIZE);
 		} else {
-			setX(bounds.x - (bounds.x % MapComponent.GRID_SIZE) + MapComponent.GRID_SIZE);
+			setX(bounds.x - bounds.x % MapComponent.GRID_SIZE + MapComponent.GRID_SIZE);
 		}
 		if (bounds.y % MapComponent.GRID_SIZE < MapComponent.GRID_SIZE / 2) {
-			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE));
+			setY(bounds.y - bounds.y % MapComponent.GRID_SIZE);
 		} else {
-			setY(bounds.y - (bounds.y % MapComponent.GRID_SIZE) + MapComponent.GRID_SIZE);
+			setY(bounds.y - bounds.y % MapComponent.GRID_SIZE + MapComponent.GRID_SIZE);
 		}
 	}
 
@@ -231,7 +224,7 @@ public class MapRoom {
 	}
 
 	private void setPressedPoint(Optional<Point> optional) {
-		this.pressedPoint = optional;
+		pressedPoint = optional;
 	}
 
 	public boolean hasRoomDialogueOpen() {
@@ -239,7 +232,7 @@ public class MapRoom {
 	}
 
 	public void setHasRoomDialogueOpen(boolean hasWindowOpen) {
-		this.hasRoomDialogueOpen = hasWindowOpen;
+		hasRoomDialogueOpen = hasWindowOpen;
 	}
 
 }

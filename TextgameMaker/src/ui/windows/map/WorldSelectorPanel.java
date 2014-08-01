@@ -36,6 +36,7 @@ public class WorldSelectorPanel extends JPanel implements MouseListener, MouseMo
 	private int stringHeight;
 
 	public WorldSelectorPanel(MapComponentsHolder componentsHolder) {
+		super();
 		this.componentsHolder = componentsHolder;
 		setBackground(ColorPaletteConstants.WORLD_SELECTOR_BACKGROUND);
 		addMouseListener(this);
@@ -44,9 +45,9 @@ public class WorldSelectorPanel extends JPanel implements MouseListener, MouseMo
 
 	public void addMapComponent(MapComponent mapPanel) {
 		mapPanels.add(mapPanel);
-		int id = mapPanels.size() - 1;
-		componentsHolder.addPanel(mapPanel, id);
-		changeToPanel(id);
+		int index = mapPanels.size() - 1;
+		componentsHolder.addPanel(mapPanel, index);
+		changeToPanel(index);
 		repaint();
 	}
 
@@ -163,7 +164,7 @@ public class WorldSelectorPanel extends JPanel implements MouseListener, MouseMo
 	}
 
 	private void enforceBounds() {
-		final int MIN_BOUND = -Math.abs((mapPanels.size() * (stringHeight + GAP_SIZE)) - 10);
+		final int MIN_BOUND = -Math.abs(mapPanels.size() * (stringHeight + GAP_SIZE) - 10);
 		final int MAX_BOUND = getHeight() - 20;
 		final int RETURN_SLOWNESS = 3; // should be less than 5ish
 

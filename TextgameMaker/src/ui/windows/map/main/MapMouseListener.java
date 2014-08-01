@@ -34,8 +34,8 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		Point mouse = e.getPoint();
-		mouse.translate((int) (getCurrentX()), (int) (getCurrentY()));
+		final Point mouse = e.getPoint();
+		mouse.translate(getCurrentX(), getCurrentY());
 
 		if (getCurrentTool() == Tool.DRAG_ROOM) {
 			if (e.getClickCount() >= 2) {
@@ -52,12 +52,12 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 	}
 
 	private void handleDoubleClickDragRoom(MouseEvent e, Point mouse) {
-		for (MapRoom room : getMapRooms()) {
+		for (final MapRoom room : getMapRooms()) {
 			if (room.getBounds().contains(mouse)) {
 				if (!room.hasRoomDialogueOpen()) {
 					room.setHasRoomDialogueOpen(true);
-					RoomDialogue roomWindow = new RoomDialogue(room);
-					this.parent.getCreatorUI().addWindow(roomWindow, room, roomWindow.getPreferredSize(),
+					final RoomDialogue roomWindow = new RoomDialogue(room);
+					parent.getCreatorUI().addWindow(roomWindow, room, roomWindow.getPreferredSize(),
 							e.getLocationOnScreen(), room.getRoom().getName());
 					deselectRoom();
 				}
@@ -78,9 +78,11 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		}
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 	}
 
@@ -103,13 +105,12 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 	}
 
 	private void handleMousePressDragRoom(MouseEvent e) {
-
 		deselectRoom();
-		for (MapRoom c : getMapRooms()) {
-			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX()), (int) (getCurrentY()));
+		for (final MapRoom c : getMapRooms()) {
+			final Point mouse = e.getPoint();
+			mouse.translate(getCurrentX(), getCurrentY());
 
-			Rectangle bounds = (Rectangle) c.getBounds().clone();
+			final Rectangle bounds = (Rectangle) c.getBounds().clone();
 
 			if (bounds.contains(mouse)) {
 				selectRoom(c);
@@ -122,55 +123,54 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 
 	private void handleMousePressCreateRoom(MouseEvent e) {
 		if (parent.getStuckToMouse().isPresent()) {
-			MapRoom room = parent.getStuckToMouse().get();
+			final MapRoom room = parent.getStuckToMouse().get();
 			room.snapToGrid();
 			if (twoRoomsInPosition(room.getLocation())) { return; }
 		}
 		// unstick to mouse
 		parent.setStuckToMouse(Optional.absent());
 
-		Point mouse = e.getPoint();
-		mouse.translate((int) (getCurrentX() - MapRoom.DEFAULT_WIDTH / 2),
-				(int) (getCurrentY() - MapRoom.DEFAULT_HEIGHT / 2));
+		final Point mouse = e.getPoint();
+		mouse.translate(getCurrentX() - MapRoom.DEFAULT_WIDTH / 2, getCurrentY() - MapRoom.DEFAULT_HEIGHT / 2);
 		parent.createRoomAtPoint(mouse.x, mouse.y).stickToMouse();
 	}
 
 	private void handleMousePressCreateHallway(MouseEvent e) {
-		for (MapRoom c : getMapRooms()) {
-			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX()), (int) (getCurrentY()));
+		for (final MapRoom c : getMapRooms()) {
+			final Point mouse = e.getPoint();
+			mouse.translate(getCurrentX(), getCurrentY());
 
-			Rectangle roomBounds = (Rectangle) c.getBounds().clone();
+			final Rectangle roomBounds = (Rectangle) c.getBounds().clone();
 			if (roomBounds.contains(mouse)) {
 
 				int index = 0;
-				for (Optional<MapHallway> hallway : c.getRoom().getHallways()) {
+				for (final Optional<MapHallway> hallway : c.getRoom().getHallways()) {
 					if (!hallway.isPresent()) {
-						Direction dir = HallwaySet.Direction.valueOf(index);
-						Rectangle circleBounds = new Rectangle(dir.x, dir.y, MapRoom.EMPTY_HALLWAY_SIZE,
+						final Direction dir = HallwaySet.Direction.valueOf(index);
+						final Rectangle circleBounds = new Rectangle(dir.x, dir.y, MapRoom.EMPTY_HALLWAY_SIZE,
 								MapRoom.EMPTY_HALLWAY_SIZE);
 						circleBounds.x += roomBounds.x;
 						circleBounds.y += roomBounds.y;
 						if (circleBounds.contains(mouse)) {
-							if (this.pressedRoom.isPresent()) {
-								Direction oneDir = Direction.valueOf(index);
-								Direction twoDir = Direction.valueOf(pressedHallwayIndex.get());
+							if (pressedRoom.isPresent()) {
+								final Direction oneDir = Direction.valueOf(index);
+								final Direction twoDir = Direction.valueOf(pressedHallwayIndex.get());
 
 								parent.addHallway(c, oneDir, pressedRoom.get(), twoDir);
 
-								this.pressedRoom = Optional.absent();
+								pressedRoom = Optional.absent();
 								pressedHallwayIndex = Optional.absent();
-								this.hallwayToMouse = Optional.absent();
+								hallwayToMouse = Optional.absent();
 							} else {
 								pressedHallwayIndex = Optional.of(index);
-								this.pressedRoom = Optional.of(c);
+								pressedRoom = Optional.of(c);
 
-								int x = pressedRoom.get().getBounds().x
+								final int x = pressedRoom.get().getBounds().x
 										+ Direction.valueOf(pressedHallwayIndex.get()).x + MapHallway.EMPTY_SIZE / 2;
-								int y = pressedRoom.get().getBounds().y
+								final int y = pressedRoom.get().getBounds().y
 										+ Direction.valueOf(pressedHallwayIndex.get()).y + MapHallway.EMPTY_SIZE / 2;
 
-								this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
+								hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
 
 							}
 						}
@@ -184,7 +184,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 
 	private boolean twoRoomsInPosition(Point position) {
 		boolean foundOne = false;
-		for (MapRoom room : getMapRooms()) {
+		for (final MapRoom room : getMapRooms()) {
 			if (room.getLocation().equals(position)) {
 				if (!foundOne) {
 					foundOne = true;
@@ -201,7 +201,7 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 		switch (getCurrentTool()) {
 		case DRAG_ROOM:
 			pressedPoint = Optional.absent();
-			for (MapRoom c : getMapRooms()) {
+			for (final MapRoom c : getMapRooms()) {
 				if (c.getPressedPoint().isPresent()) {
 					c.pressedPoint = Optional.absent();
 					c.snapToGrid();
@@ -226,19 +226,19 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (getCurrentTool() == Tool.DRAG_ROOM) {
-			for (MapRoom c : getMapRooms()) {
+			for (final MapRoom c : getMapRooms()) {
 				c.mouseDragged(e);
 			}
 			if (pressedPoint.isPresent()) {
-				parent.setCurrentX((int) (getCurrentX() + (pressedPoint.get().x - e.getPoint().x)));
-				parent.setCurrentY((int) (getCurrentY() + (pressedPoint.get().y - e.getPoint().y)));
+				parent.setCurrentX(getCurrentX() + pressedPoint.get().x - e.getPoint().x);
+				parent.setCurrentY(getCurrentY() + pressedPoint.get().y - e.getPoint().y);
 
 				pressedPoint = Optional.of(e.getPoint());
 			}
 		} else if (getCurrentTool() == Tool.CREATE_ROOM) {
-			this.mouseMoved(e);
+			mouseMoved(e);
 		} else if (getCurrentTool() == Tool.CREATE_HALLWAY) {
-			this.mouseMoved(e);
+			mouseMoved(e);
 		}
 		parent.repaint();
 	}
@@ -246,20 +246,20 @@ class MapMouseListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		if (parent.getStuckToMouse().isPresent()) {
-			MapRoom room = parent.getStuckToMouse().get();
+			final MapRoom room = parent.getStuckToMouse().get();
 
-			room.setX((int) (getCurrentX() + ((double) e.getPoint().x) - room.getBounds().width / 2));
-			room.setY((int) (getCurrentY() + ((double) e.getPoint().y) - room.getBounds().height / 2));
-		} else if (this.pressedHallwayIndex.isPresent()) {
-			Point mouse = e.getPoint();
-			mouse.translate((int) (getCurrentX()), (int) (getCurrentY()));
+			room.setX((int) (getCurrentX() + (double) e.getPoint().x - room.getBounds().width / 2));
+			room.setY((int) (getCurrentY() + (double) e.getPoint().y - room.getBounds().height / 2));
+		} else if (pressedHallwayIndex.isPresent()) {
+			final Point mouse = e.getPoint();
+			mouse.translate(getCurrentX(), getCurrentY());
 
-			int x = pressedRoom.get().getBounds().x + Direction.valueOf(pressedHallwayIndex.get()).x
+			final int x = pressedRoom.get().getBounds().x + Direction.valueOf(pressedHallwayIndex.get()).x
 					+ MapHallway.EMPTY_SIZE / 2;
-			int y = pressedRoom.get().getBounds().y + Direction.valueOf(pressedHallwayIndex.get()).y
+			final int y = pressedRoom.get().getBounds().y + Direction.valueOf(pressedHallwayIndex.get()).y
 					+ MapHallway.EMPTY_SIZE / 2;
 
-			this.hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
+			hallwayToMouse = Optional.of(new Line2D.Double(x, y, mouse.x, mouse.y));
 		}
 		parent.repaint();
 	}
